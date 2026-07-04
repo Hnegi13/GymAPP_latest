@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'member.dart';
+import 'add_member_page.dart';
+import 'services/firestore_service.dart';
 
 class MemberDetailsPage extends StatelessWidget {
   final Member member;
@@ -11,20 +13,71 @@ class MemberDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("MemberDetailsPage ID = ${member.id}");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Member Details"),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddMemberPage(
+                    member: member,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          IconButton(
+            icon: const Icon(Icons.delete),
+    onPressed: () async {
+    bool? confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+    return AlertDialog(
+    title: const Text("Delete Member"),
+    content: const Text(
+    "Are you sure you want to delete this member?",
+    ),
+    actions: [
+    TextButton(
+    onPressed: () => Navigator.pop(context, false),
+    child: const Text("Cancel"),
+    ),
+    TextButton(
+    onPressed: () => Navigator.pop(context, true),
+    child: const Text("Delete"),
+    ),
+    ],
+    );
+    },
+    );
+
+    if (confirm == true) {
+    final firestoreService = FirestoreService();
+
+    await firestoreService.deleteMember(member.id!);
+
+    Navigator.pop(context);
+    }
+
+            },
+          ),
+        ],
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
 
             const Center(
               child: CircleAvatar(
@@ -67,8 +120,32 @@ class MemberDetailsPage extends StatelessWidget {
               leading: const Icon(Icons.currency_rupee),
               title: Text(member.fee),
             ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text("Start Date"),
+              subtitle: Text(
+                "${member.startDate.day}/${member.startDate.month}/${member.startDate.year}",
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text("End Date"),
+              subtitle: Text(
+                "${member.endDate.day}/${member.endDate.month}/${member.endDate.year}",
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                member.isActive ? Icons.check_circle : Icons.cancel,
+                color: member.isActive ? Colors.green : Colors.red,
+              ),
+              title: const Text("Status"),
+              subtitle: Text(
+                member.isActive ? "Active" : "Inactive",
+              ),
+            ),
 
-            const Spacer(),
+                const SizedBox(height: 30),
 
             SizedBox(
               width: double.infinity,
@@ -91,6 +168,7 @@ class MemberDetailsPage extends StatelessWidget {
 
           ],
         ),
+          ),
       ),
     );
   }

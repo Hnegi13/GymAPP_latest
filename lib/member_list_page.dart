@@ -27,6 +27,11 @@ class _MemberListPageState extends State<MemberListPage> {
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            }
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -56,6 +61,7 @@ class _MemberListPageState extends State<MemberListPage> {
                 trailing: const Icon(Icons.arrow_forward_ios),
 
                 onTap: () {
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
