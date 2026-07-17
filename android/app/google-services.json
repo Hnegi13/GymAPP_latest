@@ -12,7 +12,20 @@
           "package_name": "com.himanshu.gymapp.gym_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "967891616771-7dav2fkke0cga4ma0q2p83bddqlp40v1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.himanshu.gymapp.gym_app",
+            "certificate_hash": "38760c9c4575c07bf22ee0cbc95c57b3421143b8"
+          }
+        },
+        {
+          "client_id": "967891616771-sr2c22rls5eo507eq3j7q7mnjek2lbl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAlqdsMN3SXod3qmVhuh_e1ey7BbUjWrpw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967891616771-sr2c22rls5eo507eq3j7q7mnjek2lbl4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
