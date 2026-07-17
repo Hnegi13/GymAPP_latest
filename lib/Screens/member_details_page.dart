@@ -1,15 +1,42 @@
 import 'package:flutter/material.dart';
-import 'modal/member.dart';
+import '../modal/member.dart';
 import 'add_member_page.dart';
-import 'services/firestore_service.dart';
+import '../services/firestore_service.dart';
+import 'renew_membership_page.dart';
 
-class MemberDetailsPage extends StatelessWidget {
+class MemberDetailsPage extends StatefulWidget {
   final Member member;
 
   const MemberDetailsPage({
     super.key,
     required this.member,
   });
+
+  @override
+  State<MemberDetailsPage> createState() => _MemberDetailsPageState();
+}
+
+class _MemberDetailsPageState extends State<MemberDetailsPage> {
+  final FirestoreService firestoreService = FirestoreService();
+  late Member member;
+
+  @override
+  void initState() {
+    super.initState();
+    member = widget.member;
+  }
+
+  Future<void> refreshMember() async {
+
+    final updatedMember =
+    await firestoreService.getMemberById(member.id!);
+
+    if (updatedMember != null) {
+      setState(() {
+        member = updatedMember;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +59,7 @@ class MemberDetailsPage extends StatelessWidget {
                   ),
                 ),
               );
+              await refreshMember();
             },
           ),
 
@@ -165,6 +193,34 @@ class MemberDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
+
+                const SizedBox(height: 15),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RenewMembershipPage(
+                            member: member,
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                    ),
+                    child: const Text(
+                      "Renew Membership",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
 
           ],
         ),

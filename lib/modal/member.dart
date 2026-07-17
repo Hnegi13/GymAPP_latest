@@ -1,5 +1,6 @@
 class Member {
   final String? id;
+
   final String name;
   final String phone;
   final String age;
@@ -11,6 +12,7 @@ class Member {
 
   Member({
     this.id,
+
     required this.name,
     required this.phone,
     required this.age,

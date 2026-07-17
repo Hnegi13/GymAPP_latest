@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'modal/member.dart';
-import 'services/firestore_service.dart';
-
-
-
+import '../modal/member.dart';
+import '../services/firestore_service.dart';
 
 class AddMemberPage extends StatefulWidget {
   final Member? member;

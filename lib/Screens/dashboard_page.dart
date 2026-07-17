@@ -1,11 +1,63 @@
 import 'package:flutter/material.dart';
 import 'add_member_page.dart';
 import 'member_list_page.dart';
+import '../services/firestore_service.dart';
+import 'filtered_members_page.dart';
+import '../modal/member.dart';
+import '../auth/auth_service.dart';
+import '../services/gym_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'payments_home_page.dart';
 
-class DashboardPage extends StatelessWidget {
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final FirestoreService firestoreService = FirestoreService();
+  final AuthService authService = AuthService();
+  final GymService gymService = GymService();
+
+  String ownerName = "";
+  String gymName = "";
+
+  int totalMembers = 0;
+  int expiringMembers = 0;
+  int expiredMembers = 0;
+
+  @override
+  Future<void> loadDashboardData() async {
+
+    expiringMembers = await firestoreService.getExpiringMembersCount();
+    expiredMembers = await firestoreService.getExpiredMembersCount();
+    totalMembers = await firestoreService.getMembersCount();
+
+
+    setState(() {});
+  }
+
+  Future<void> loadGymDetails() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final gym = await gymService.getGym(uid);
+
+    if (gym != null) {
+      setState(() {
+        ownerName = gym.ownerName;
+        gymName = gym.gymName;
+      });
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    loadDashboardData();
+    loadGymDetails();
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -19,13 +71,31 @@ class DashboardPage extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 15),
-            child: CircleAvatar(
+        actions: [
+          PopupMenuButton<String>(
+            icon: const CircleAvatar(
               child: Icon(Icons.person),
             ),
-          )
+            onSelected: (value) async {
+
+              if (value == "logout") {
+                await authService.signOut();
+              }
+
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: "logout",
+                child: Row(
+                  children: [
+                    Icon(Icons.logout),
+                    SizedBox(width: 10),
+                    Text("Logout"),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -37,9 +107,9 @@ class DashboardPage extends StatelessWidget {
 
           children: [
 
-            const Text(
-              "Good Morning 👋",
-              style: TextStyle(
+            Text(
+              "${getGreeting()}, $ownerName 👋",
+              style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
               ),
@@ -47,12 +117,29 @@ class DashboardPage extends StatelessWidget {
 
             const SizedBox(height: 5),
 
-            const Text(
-              "Here's today's summary",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Text(
+                  gymName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                const Text(
+                  "Here's today's summary",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 25),
@@ -63,7 +150,7 @@ class DashboardPage extends StatelessWidget {
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15,
 
-                children:  [
+                children: [
 
                   InkWell(
                     onTap: () {
@@ -74,13 +161,109 @@ class DashboardPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const DashboardCard(
-                      title: "Members",
-                      value: "152",
-                      icon: Icons.people,
-                      color: Colors.blue,
+                    child:  StreamBuilder<int>(
+                      stream: firestoreService.getMembersCountStream(),
+                      builder: (context, snapshot) {
+
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        return DashboardCard(
+                          title: "Members",
+                          value: snapshot.data.toString(),
+                          icon: Icons.people,
+                          color: Colors.blue,
+                        );
+                      },
                     ),
                   ),
+
+                  InkWell(
+                    onTap: () async {
+
+                      List<Member> members =
+                      await firestoreService.getExpiringMembers();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FilteredMembersPage(
+                            title: "Expiring",
+                            members: members,
+                            isExpired: false,
+                          ),
+                        ),
+                      );
+                    },
+
+                    child: StreamBuilder<int>(
+                      stream: firestoreService.getExpiringMembersCountStream(),
+                      builder: (context, snapshot) {
+
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        return DashboardCard(
+                          title: "Expiring",
+                          value: snapshot.data.toString(),
+                          icon: Icons.warning_amber_rounded,
+                          color: Colors.orange,
+                        );
+                      },
+                    )
+                  ),
+
+                  InkWell(
+                    onTap: () async {
+
+                      List<Member> members =
+                      await firestoreService.getExpiredMembers();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FilteredMembersPage(
+                            title: "Expired",
+                            members: members,
+                            isExpired: true,
+                          ),
+                        ),
+                      );
+                    },
+
+                    child: StreamBuilder<int>(
+                      stream: firestoreService.getExpiredMembersCountStream(),
+                      builder: (context, snapshot) {
+
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        return DashboardCard(
+                          title: "Expired",
+                          value: snapshot.data.toString(),
+                          icon: Icons.cancel,
+                          color: Colors.red,
+                        );
+                      },
+                    )
+                  ),
+
+                  DashboardCard(
+                    title: "Reports",
+                    value: expiringMembers.toString(),
+                    icon: Icons.report,
+                    color: Colors.blueAccent,
+                  ),
+
 
                   DashboardCard(
                     title: "Attendance",
@@ -89,19 +272,24 @@ class DashboardPage extends StatelessWidget {
                     color: Colors.green,
                   ),
 
-                  DashboardCard(
-                    title: "Payments",
-                    value: "₹25K",
-                    icon: Icons.payments,
-                    color: Colors.orange,
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PaymentsHomePage(),
+                        ),
+                      );
+                    },
+                    child: DashboardCard(
+                      title: "Payments",
+                      value: "",
+                      icon: Icons.payments,
+                      color: Colors.orange,
+                    ),
                   ),
 
-                  DashboardCard(
-                    title: "Expiring",
-                    value: "12",
-                    icon: Icons.timer,
-                    color: Colors.red,
-                  ),
+
 
                 ],
               ),
@@ -111,7 +299,20 @@ class DashboardPage extends StatelessWidget {
       ),
     );
   }
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+
+    if (hour < 12) {
+      return "Good Morning";
+    } else if (hour < 17) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  }
+
 }
+
 
 class DashboardCard extends StatelessWidget {
 
