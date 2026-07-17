@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'member.dart';
+import 'modal/member.dart';
 import 'add_member_page.dart';
 import 'services/firestore_service.dart';
 

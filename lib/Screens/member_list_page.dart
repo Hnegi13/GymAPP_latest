@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'add_member_page.dart';
-import 'member.dart';
-import 'member_details_page.dart';
+import 'Screens/add_member_page.dart';
+import 'modal/member.dart';
+import 'Screens/member_details_page.dart';
 import 'services/firestore_service.dart';
 
 class MemberListPage extends StatefulWidget {
