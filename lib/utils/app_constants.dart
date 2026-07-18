@@ -25,4 +25,8 @@ class AppConstants {
   // Razorpay
   static const String razorpayTestKey = "rzp_test_TDRxJ9jm75A7Ai";
   static const String razorpayLiveKey = "rzp_live_xxxxxxxxx";
+
+  //Subscription Guard Service logic
+  static const int subscriptionGraceDays = 3;
+
 }

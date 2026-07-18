@@ -5,6 +5,7 @@ import 'member_details_page.dart';
 import '../services/firestore_service.dart';
 import '../services/subscription_service.dart';
 import 'subscription_page.dart';
+import '../services/subscription_guard_service.dart';
 
 class MemberListPage extends StatefulWidget {
   const MemberListPage({super.key});
@@ -19,6 +20,7 @@ class _MemberListPageState extends State<MemberListPage> {
 
   final FirestoreService firestoreService = FirestoreService();
   final SubscriptionService subscriptionService = SubscriptionService();
+  final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +68,68 @@ class _MemberListPageState extends State<MemberListPage> {
 
                 trailing: const Icon(Icons.arrow_forward_ios),
 
-                onTap: () {
+                onTap: () async {
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MemberDetailsPage(
-                        member: members[index],
+                  final status =
+                  await subscriptionGuard.getSubscriptionStatus();
+
+                  if (status == SubscriptionStatus.active ||
+                      status == SubscriptionStatus.gracePeriod) {
+
+                    if (!mounted) return;
+
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MemberDetailsPage(member: members[index]),
                       ),
-                    ),
+                    );
+
+                    return;
+                  }
+
+                  if (!mounted) return;
+
+                  final renew = await showDialog<bool>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Account Restricted"),
+                        content: const Text(
+                          "Your grace period has ended.\n\n"
+                              "Renew your subscription to view member details.",
+                        ),
+                        actions: [
+
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            },
+                            child: const Text("Later"),
+                          ),
+
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                            },
+                            child: const Text("Renew Now"),
+                          ),
+                        ],
+                      );
+                    },
                   );
+
+                  if (renew == true && mounted) {
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SubscriptionPage(),
+                      ),
+                    );
+
+                  }
+
                 },
               );
             },
@@ -86,63 +140,111 @@ class _MemberListPageState extends State<MemberListPage> {
         backgroundColor: Colors.greenAccent,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () async {
+          final status = await subscriptionGuard.getSubscriptionStatus();
+            if (status == SubscriptionStatus.active){
 
-          final allowed =
-          await subscriptionService.canAddMember();
+          final allowed = await subscriptionService.canAddMember();
 
           if (allowed) {
-
             await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const AddMemberPage(),
               ),
             );
-
-          } else {
-
-            if (!mounted) return;
-
-            final upgrade = await showDialog<bool>(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("Free Plan Limit Reached"),
-
-                  content: const Text(
-                    "You've reached the limit of 5 members.\n\n"
-                        "Upgrade to Gym Manager Pro to add unlimited members and unlock premium features.",
-                  ),
-
-                  actions: [
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context, false);
-                      },
-                      child: const Text("Later"),
-                    ),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, true);
-                      },
-                      child: const Text("Upgrade"),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (upgrade == true && mounted) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SubscriptionPage(),
-                ),
-              );
-            }
+            return;
           }
+          }
+
+            else if (status == SubscriptionStatus.gracePeriod) {
+
+              final renew = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Subscription Expired"),
+                    content: const Text(
+                      "Your subscription has expired.\n\n"
+                          "You are currently in the 3-day grace period.\n"
+                          "Renew now to continue adding new members.",
+                    ),
+                    actions: [
+
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        child: const Text("Later"),
+                      ),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text("Renew Now"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (renew == true && mounted) {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SubscriptionPage(),
+                  ),
+                );
+
+              }
+
+            }
+
+            else {
+
+              final renew = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Account Restricted"),
+                    content: const Text(
+                      "Your grace period has ended.\n\n"
+                          "Renew your subscription to regain access to premium features.",
+                    ),
+                    actions: [
+
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        child: const Text("Exit"),
+                      ),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text("Renew Now"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (renew == true && mounted) {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SubscriptionPage(),
+                  ),
+                );
+
+              }
+
+            }
+
         },
       ),
     );

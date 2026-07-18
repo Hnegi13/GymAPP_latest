@@ -8,6 +8,8 @@ import '../auth/auth_service.dart';
 import '../services/gym_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'payments_home_page.dart';
+import '../services/subscription_guard_service.dart';
+import 'subscription_page.dart';
 
 
 class DashboardPage extends StatefulWidget {
@@ -19,6 +21,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final FirestoreService firestoreService = FirestoreService();
+  final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
   final AuthService authService = AuthService();
   final GymService gymService = GymService();
 
@@ -35,6 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
     expiringMembers = await firestoreService.getExpiringMembersCount();
     expiredMembers = await firestoreService.getExpiredMembersCount();
     totalMembers = await firestoreService.getMembersCount();
+
 
 
     setState(() {});
@@ -182,22 +186,75 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
 
                   InkWell(
-                    onTap: () async {
+                      onTap: () async {
 
-                      List<Member> members =
-                      await firestoreService.getExpiringMembers();
+                        final status =
+                        await subscriptionGuard.getSubscriptionStatus();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FilteredMembersPage(
-                            title: "Expiring",
-                            members: members,
-                            isExpired: false,
+                        if (status != SubscriptionStatus.active) {
+
+                          if (!mounted) return;
+
+                          final renew = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Subscription Expired"),
+                                content: const Text(
+                                  "Renew your subscription to access the Expiring Members feature.",
+                                ),
+                                actions: [
+
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                    child: const Text("Later"),
+                                  ),
+
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                    child: const Text("Renew Now"),
+                                  ),
+
+                                ],
+                              );
+                            },
+                          );
+
+                          if (renew == true && mounted) {
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SubscriptionPage(),
+                              ),
+                            );
+
+                          }
+
+                          return;
+                        }
+
+                        List<Member> members =
+                        await firestoreService.getExpiringMembers();
+
+                        if (!mounted) return;
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FilteredMembersPage(
+                              title: "Expiring",
+                              members: members,
+                              isExpired: false,
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+
+                      },
 
                     child: StreamBuilder<int>(
                       stream: firestoreService.getExpiringMembersCountStream(),
@@ -220,22 +277,75 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
 
                   InkWell(
-                    onTap: () async {
+                      onTap: () async {
 
-                      List<Member> members =
-                      await firestoreService.getExpiredMembers();
+                        final status =
+                        await subscriptionGuard.getSubscriptionStatus();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FilteredMembersPage(
-                            title: "Expired",
-                            members: members,
-                            isExpired: true,
+                        if (status != SubscriptionStatus.active) {
+
+                          if (!mounted) return;
+
+                          final renew = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Subscription Expired"),
+                                content: const Text(
+                                  "Renew your subscription to access the Expired Members feature.",
+                                ),
+                                actions: [
+
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                    child: const Text("Later"),
+                                  ),
+
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                    child: const Text("Renew Now"),
+                                  ),
+
+                                ],
+                              );
+                            },
+                          );
+
+                          if (renew == true && mounted) {
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SubscriptionPage(),
+                              ),
+                            );
+
+                          }
+
+                          return;
+                        }
+
+                        List<Member> members =
+                        await firestoreService.getExpiredMembers();
+
+                        if (!mounted) return;
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FilteredMembersPage(
+                              title: "Expired",
+                              members: members,
+                              isExpired: true,
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+
+                      },
 
                     child: StreamBuilder<int>(
                       stream: firestoreService.getExpiredMembersCountStream(),

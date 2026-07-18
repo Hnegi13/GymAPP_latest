@@ -3,6 +3,8 @@ import '../modal/member.dart';
 import 'add_member_page.dart';
 import '../services/firestore_service.dart';
 import 'renew_membership_page.dart';
+import '../services/subscription_guard_service.dart';
+import 'subscription_page.dart';
 
 class MemberDetailsPage extends StatefulWidget {
   final Member member;
@@ -18,6 +20,7 @@ class MemberDetailsPage extends StatefulWidget {
 
 class _MemberDetailsPageState extends State<MemberDetailsPage> {
   final FirestoreService firestoreService = FirestoreService();
+  final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
   late Member member;
 
   @override
@@ -51,6 +54,58 @@ class _MemberDetailsPageState extends State<MemberDetailsPage> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {
+
+              final status =
+              await subscriptionGuard.getSubscriptionStatus();
+
+              if (status != SubscriptionStatus.active) {
+
+                if (!mounted) return;
+
+                final renew = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Subscription Expired"),
+                      content: const Text(
+                        "Editing members is unavailable during the grace period.\n\n"
+                            "Renew your subscription to continue.",
+                      ),
+                      actions: [
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text("Later"),
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Text("Renew Now"),
+                        ),
+
+                      ],
+                    );
+                  },
+                );
+
+                if (renew == true && mounted) {
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SubscriptionPage(),
+                    ),
+                  );
+
+                }
+
+                return;
+              }
+
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -59,23 +114,75 @@ class _MemberDetailsPageState extends State<MemberDetailsPage> {
                   ),
                 ),
               );
+
               await refreshMember();
+
             },
           ),
 
           IconButton(
             icon: const Icon(Icons.delete),
+
     onPressed: () async {
-    bool? confirm = await showDialog<bool>(
+      final status = await subscriptionGuard.getSubscriptionStatus();
+
+      if (status != SubscriptionStatus.active) {
+
+        if (!mounted) return;
+
+        final renew = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Subscription Expired"),
+              content: const Text(
+                "Deleting members is unavailable during the grace period.\n\n"
+                    "Renew your subscription to continue.",
+              ),
+              actions: [
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text("Later"),
+                ),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const Text("Renew Now"),
+                ),
+
+              ],
+            );
+          },
+        );
+
+        if (renew == true && mounted) {
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SubscriptionPage(),
+            ),
+          );
+
+        }
+
+        return;
+      }
+              bool? confirm = await showDialog<bool>(
     context: context,
     builder: (context) {
     return AlertDialog(
     title: const Text("Delete Member"),
     content: const Text(
-    "Are you sure you want to delete this member?",
+      "Are you sure you want to delete this member?",
     ),
-    actions: [
-    TextButton(
+      actions: [
+        TextButton(
     onPressed: () => Navigator.pop(context, false),
     child: const Text("Cancel"),
     ),
