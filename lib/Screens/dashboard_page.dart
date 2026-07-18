@@ -10,6 +10,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'payments_home_page.dart';
 import '../services/subscription_guard_service.dart';
 import 'subscription_page.dart';
+import '/screens/profile/about_page.dart';
+import '/screens/profile/notification_page.dart';
+import '/screens/profile/privacy_policy_page.dart';
+import '/screens/profile/settings_page.dart';
+import '/screens/profile/terms_conditions_page.dart';
+import '../widgets/logout_dialog.dart';
 
 
 class DashboardPage extends StatefulWidget {
@@ -81,13 +87,114 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Icon(Icons.person),
             ),
             onSelected: (value) async {
+              switch (value) {
+                case "notifications":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationPage(),
+                    ),
+                  );
+                  break;
 
-              if (value == "logout") {
-                await authService.signOut();
+                case "settings":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SettingsPage(),
+                    ),
+                  );
+                  break;
+
+                case "privacy":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyPage(),
+                    ),
+                  );
+                  break;
+
+                case "terms":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TermsConditionsPage(),
+                    ),
+                  );
+                  break;
+
+                case "about":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AboutPage(),
+                    ),
+                  );
+                  break;
+
+                case "logout":
+                  final shouldLogout = await showLogoutDialog(context);
+
+                  if (shouldLogout == true) {
+                    await authService.signOut();
+                  }
+
+                  break;
               }
-
             },
             itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: "notifications",
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications_outlined),
+                    SizedBox(width: 10),
+                    Text("Notifications"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: "settings",
+                child: Row(
+                  children: [
+                    Icon(Icons.settings_outlined),
+                    SizedBox(width: 10),
+                    Text("Settings"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: "privacy",
+                child: Row(
+                  children: [
+                    Icon(Icons.privacy_tip_outlined),
+                    SizedBox(width: 10),
+                    Text("Privacy Policy"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: "terms",
+                child: Row(
+                  children: [
+                    Icon(Icons.description_outlined),
+                    SizedBox(width: 10),
+                    Text("Terms & Conditions"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: "about",
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: 10),
+                    Text("About"),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
               const PopupMenuItem(
                 value: "logout",
                 child: Row(
@@ -99,7 +206,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             ],
-          ),
+          )
         ],
       ),
 
