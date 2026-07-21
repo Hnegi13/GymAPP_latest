@@ -16,6 +16,8 @@ import '/screens/profile/privacy_policy_page.dart';
 import '/screens/profile/settings_page.dart';
 import '/screens/profile/terms_conditions_page.dart';
 import '../widgets/logout_dialog.dart';
+import '../services/attendance_service.dart';
+import '/Screens/attendance/attendance_history_page.dart';
 
 
 class DashboardPage extends StatefulWidget {
@@ -28,6 +30,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final FirestoreService firestoreService = FirestoreService();
   final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
+  final AttendanceService attendanceService = AttendanceService();
   final AuthService authService = AuthService();
   final GymService gymService = GymService();
 
@@ -481,13 +484,50 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Colors.blueAccent,
                   ),
 
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AttendanceHistoryPage(),
+                      ),
+                    );
+                    },
 
-                  DashboardCard(
-                    title: "Attendance",
-                    value: "89",
-                    icon: Icons.check_circle,
-                    color: Colors.green,
+
+
+                  child: FutureBuilder<int>(
+                    future: attendanceService.getTodayAttendanceCount(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return DashboardCard(
+                          title: "Attendance",
+                          value: "...",
+                          icon: Icons.check_circle,
+                          color: Colors.green,
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return DashboardCard(
+                          title: "Attendance",
+                          value: "Error",
+                          icon: Icons.check_circle,
+                          color: Colors.green,
+                        );
+                      }
+
+                      final count = snapshot.data ?? 0;
+
+                      return DashboardCard(
+                        title: "Attendance",
+                        value: "$count Today",
+                        icon: Icons.check_circle,
+                        color: Colors.green,
+                      );
+                    },
                   ),
+                ),
 
                   InkWell(
                     onTap: () {

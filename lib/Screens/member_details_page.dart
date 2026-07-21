@@ -5,6 +5,7 @@ import '../services/firestore_service.dart';
 import 'renew_membership_page.dart';
 import '../services/subscription_guard_service.dart';
 import 'subscription_page.dart';
+import '../services/attendance_service.dart';
 
 class MemberDetailsPage extends StatefulWidget {
   final Member member;
@@ -21,6 +22,7 @@ class MemberDetailsPage extends StatefulWidget {
 class _MemberDetailsPageState extends State<MemberDetailsPage> {
   final FirestoreService firestoreService = FirestoreService();
   final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
+  final AttendanceService attendanceService = AttendanceService();
   late Member member;
 
   @override
@@ -286,7 +288,24 @@ class _MemberDetailsPageState extends State<MemberDetailsPage> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final isMarked = await attendanceService.markAttendance(
+                    memberId: member.id!,
+                    memberName: member.name,
+                  );
+
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isMarked
+                            ? 'Attendance marked successfully.'
+                            : 'Attendance already marked for today.',
+                      ),
+                    ),
+                  );
+                },
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
