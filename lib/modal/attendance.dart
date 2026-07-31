@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Attendance {
   final String? id;
   final String memberId;
+  final String gymId;
   final String memberName;
   final DateTime attendanceDate;
   final DateTime attendanceTime;
@@ -11,6 +12,7 @@ class Attendance {
   Attendance({
     this.id,
     required this.memberId,
+    required this.gymId,
     required this.memberName,
     required this.attendanceDate,
     required this.attendanceTime,
@@ -20,6 +22,7 @@ class Attendance {
   Map<String, dynamic> toMap() {
     return {
       'memberId': memberId,
+      'gymId': gymId,
       'memberName': memberName,
       'attendanceDate': Timestamp.fromDate(attendanceDate),
       'attendanceTime': Timestamp.fromDate(attendanceTime),
@@ -33,6 +36,7 @@ class Attendance {
       ) {
     return Attendance(
       id: documentId,
+      gymId: map['gymId'],
       memberId: map['memberId'],
       memberName: map['memberName'],
       attendanceDate:

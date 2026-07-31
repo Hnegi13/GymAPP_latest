@@ -9,8 +9,8 @@ class AppConstants {
   static const int unlimitedMembers = -1;
 
   // Pricing (Launch Offer)
-  static const double monthlyPrice = 299;
-  static const double yearlyPrice = 3000;
+  static const double monthlyPrice = 249;
+  static const double yearlyPrice = 1899;
 
   // Original Pricing
   static const double monthlyOriginalPrice = 499;

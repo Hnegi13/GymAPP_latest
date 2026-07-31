@@ -4,25 +4,30 @@ class Gym {
   final String id;
   final String gymName;
   final String ownerName;
+  final String location;
   final String phone;
   final String email;
   final DateTime createdAt;
   final Subscription subscription;
 
+
   Gym({
     required this.id,
     required this.gymName,
     required this.ownerName,
+    required this.location,
     required this.phone,
     required this.email,
     required this.createdAt,
     required this.subscription,
+
   });
 
   Map<String, dynamic> toMap() {
     return {
       'gymName': gymName,
       'ownerName': ownerName,
+      'location': location,
       'phone': phone,
       'email': email,
       'createdAt': createdAt,
@@ -35,6 +40,7 @@ class Gym {
       id: id,
       gymName: map['gymName'] ?? '',
       ownerName: map['ownerName'] ?? '',
+      location: map['location'] ?? '',
       phone: map['phone'] ?? '',
       email: map['email'] ?? '',
       createdAt: map['createdAt'].toDate(),

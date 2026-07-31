@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../modal/attendance.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AttendanceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -20,8 +21,10 @@ class AttendanceService {
     final todayEnd = todayStart.add(
       const Duration(days: 1),
     );
+    final gymId = FirebaseAuth.instance.currentUser!.uid;
 
     final snapshot = await attendanceCollection
+        .where('gymId', isEqualTo: gymId)
         .where('memberId', isEqualTo: memberId)
         .where(
       'attendanceDate',
@@ -44,6 +47,7 @@ class AttendanceService {
   }) async {
 
     final alreadyMarked = await isAttendanceMarkedToday(memberId);
+    final gymId = FirebaseAuth.instance.currentUser!.uid;
 
     if (alreadyMarked) {
       return false;
@@ -52,6 +56,7 @@ class AttendanceService {
     final now = DateTime.now();
 
     final attendance = Attendance(
+      gymId: gymId,
       memberId: memberId,
       memberName: memberName,
       attendanceDate: DateTime(
@@ -74,6 +79,7 @@ class AttendanceService {
   Future<int> getTodayAttendanceCount() async {
 
     final now = DateTime.now();
+    final gymId = FirebaseAuth.instance.currentUser!.uid;
 
     final todayStart = DateTime(
       now.year,
@@ -86,14 +92,9 @@ class AttendanceService {
     );
 
     final snapshot = await attendanceCollection
-        .where(
-      'attendanceDate',
-      isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart),
-    )
-        .where(
-      'attendanceDate',
-      isLessThan: Timestamp.fromDate(todayEnd),
-    )
+        .where('gymId', isEqualTo: gymId)
+        .where('attendanceDate', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart),)
+        .where('attendanceDate', isLessThan: Timestamp.fromDate(todayEnd),)
         .get();
 
     return snapshot.docs.length;
@@ -111,16 +112,12 @@ class AttendanceService {
     final dayEnd = dayStart.add(
       const Duration(days: 1),
     );
+    final gymId = FirebaseAuth.instance.currentUser!.uid;
 
     final snapshot = await attendanceCollection
-        .where(
-      'attendanceDate',
-      isGreaterThanOrEqualTo: Timestamp.fromDate(dayStart),
-    )
-        .where(
-      'attendanceDate',
-      isLessThan: Timestamp.fromDate(dayEnd),
-    )
+        .where('gymId', isEqualTo: gymId)
+        .where('attendanceDate', isGreaterThanOrEqualTo: Timestamp.fromDate(dayStart),)
+        .where('attendanceDate', isLessThan: Timestamp.fromDate(dayEnd),)
         .orderBy('attendanceTime')
         .get();
 
@@ -130,6 +127,35 @@ class AttendanceService {
         doc.id,
       );
     }).toList();
+  }
+
+// for live count in dashboard
+  Stream<int> getTodayAttendanceCountStream() {
+
+    final now = DateTime.now();
+
+    final todayStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    final todayEnd = todayStart
+        .add(const Duration(days: 1),);
+    final gymId = FirebaseAuth.instance.currentUser!.uid;
+
+    return attendanceCollection
+        .where('gymId', isEqualTo: gymId)
+        .where(
+      'attendanceDate',
+      isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart),
+    )
+        .where(
+      'attendanceDate',
+      isLessThan: Timestamp.fromDate(todayEnd),
+    )
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 
 

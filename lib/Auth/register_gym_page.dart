@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../Screens/home/home_page.dart';
 import '../modal/gym.dart';
 import '../services/gym_service.dart';
-import '../Screens/dashboard_page.dart';
+import '../Screens/dashboard_v2_page.dart';
 import '../modal/subscription.dart';
 import '../utils/app_constants.dart';
 
@@ -19,6 +20,7 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
   final gymNameController = TextEditingController();
   final ownerNameController = TextEditingController();
   final phoneController = TextEditingController();
+  final locationController = TextEditingController();
 
   final GymService gymService = GymService();
 
@@ -69,6 +71,16 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
               ),
             ),
 
+            const SizedBox(height: 20),
+
+            TextField(
+              controller: locationController,
+              decoration: const InputDecoration(
+                labelText: "Location (City)",
+                prefixIcon: Icon(Icons.location_on),
+              ),
+            ),
+
             const SizedBox(height: 40),
 
             SizedBox(
@@ -101,6 +113,7 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
                     id: user.uid,
                     gymName: gymNameController.text,
                     ownerName: ownerNameController.text,
+                    location: locationController.text.trim(),
                     phone: phoneController.text,
                     email: user.email ?? "",
                     createdAt: DateTime.now(),
@@ -113,7 +126,7 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const DashboardPage(),
+                        builder: (_) =>const HomePage(),
                       ),
                     );
                   }

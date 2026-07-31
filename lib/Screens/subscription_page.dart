@@ -110,9 +110,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Monthly",
-              price: "₹299",
+              price: "₹249",
               oldPrice: "₹499",
-              savings: "Save ₹200",
+              savings: "Save ₹250",
               buttonText: "Upgrade",
               highlight: false,
               onPressed: () async {
@@ -214,9 +214,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Yearly ⭐",
-              price: "₹3000",
+              price: "₹1899",
               oldPrice: "₹5000",
-              savings: "Save ₹2000",
+              savings: "Save ₹3101",
               buttonText: "Upgrade",
               highlight: true,
               onPressed: () async {

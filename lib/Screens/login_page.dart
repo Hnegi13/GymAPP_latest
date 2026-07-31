@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard_page.dart';
+import 'dashboard_v2_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -81,7 +81,7 @@ class LoginPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DashboardPage(),
+                      builder: (context) => const DashboardV2Page(),
                     ),
                   );
                 },
@@ -104,7 +104,7 @@ class LoginPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DashboardPage(),
+                      builder: (context) => const DashboardV2Page(),
                     ),
                   );
                 },

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../Screens/dashboard_page.dart';
+import '../Screens/dashboard_v2_page.dart';
+import '../Screens/home/home_page.dart';
 import '../services/gym_service.dart';
 import 'login_page.dart';
 import 'register_gym_page.dart';
@@ -48,7 +49,8 @@ class AuthGate extends StatelessWidget {
               return const RegisterGymPage();
             }
 
-            return const DashboardPage();
+            return const HomePage();
+            // return const DashboardV2Page();
           },
         );
       },

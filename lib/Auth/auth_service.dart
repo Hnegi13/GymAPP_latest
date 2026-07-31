@@ -30,6 +30,7 @@ class AuthService {
   }
 
   Future<void> signOut() async {
+    await _googleSignIn.disconnect(); //temoporaray usage
     await _googleSignIn.signOut();
     await _auth.signOut();
   }
