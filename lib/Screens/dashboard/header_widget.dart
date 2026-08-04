@@ -4,15 +4,19 @@ import 'package:intl/intl.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../modal/gym.dart';
+import '../dashboard/profile_page.dart';
 
-class HeaderWidget extends StatefulWidget {
-  const HeaderWidget({super.key});
+class HeaderWidget extends StatelessWidget {
 
-  @override
-  State<HeaderWidget> createState() => _HeaderWidgetState();
-}
+  final Gym gym;
 
-class _HeaderWidgetState extends State<HeaderWidget> {
+  const HeaderWidget({
+    super.key,
+    required this.gym,
+  });
+
 
 
   @override
@@ -32,7 +36,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
+          padding:  EdgeInsets.fromLTRB(20, 12, 20, 18),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -49,7 +53,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'ABC Fitness Gym',
+                                  gym.gymName,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -58,14 +62,28 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                                 ),
                               ),
 
-                              IconButton(
-                                onPressed: () {
-                                  Scaffold.of(context).openDrawer();
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const ProfilePage(),
+                                    ),
+                                  );
                                 },
-                                icon: const Icon(
-                                  Icons.menu,
-                                  color: Colors.white,
-                                  size: 28,
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white24,
+                                  child: Text(
+                                    gym.ownerName.isNotEmpty
+                                        ? gym.ownerName[0].toUpperCase()
+                                        : "G",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -73,7 +91,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
 
                           const SizedBox(height: 2),
 
-                          const Padding(
+                           Padding(
                             padding: EdgeInsets.only(left: 2),
                             child: Wrap(
                               spacing: 20,
@@ -88,7 +106,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                                     ),
                                     SizedBox(width: 4),
                                     Text(
-                                      'Haldwani',
+                                      gym.location,
                                       style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 13,
@@ -107,7 +125,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                                     ),
                                     SizedBox(width: 4),
                                     Text(
-                                      '31 Jul',
+                                      DateFormat('dd MMM').format(DateTime.now()),
                                       style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 13,

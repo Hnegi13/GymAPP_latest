@@ -46,10 +46,12 @@ class SubscriptionService {
 
     final now = DateTime.now();
 
+    final baseDate = await _getSubscriptionBaseDate();
+
     final endDate = DateTime(
-      now.year,
-      now.month + 1,
-      now.day,
+      baseDate.year,
+      baseDate.month + 1,
+      baseDate.day,
     );
 
     await _firestore
@@ -58,20 +60,72 @@ class SubscriptionService {
         .update({
 
       "subscription.plan": AppConstants.monthlyPlan,
-
       "subscription.memberLimit": AppConstants.unlimitedMembers,
-
       "subscription.isActive": true,
-
       "subscription.amountPaid": AppConstants.monthlyPrice,
-
       "subscription.paymentStatus": AppConstants.paymentPaid,
-
       "subscription.startDate": now,
-
       "subscription.endDate": endDate,
     });
 
+  }
+
+  Future<void> activateQuarterlyPlan() async {
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final now = DateTime.now();
+
+    final baseDate = await _getSubscriptionBaseDate();
+
+    final endDate = DateTime(
+      baseDate.year,
+      baseDate.month + 3,
+      baseDate.day,
+    );
+
+    await _firestore
+        .collection("gyms")
+        .doc(uid)
+        .update({
+
+      "subscription.plan": AppConstants.quarterlyPlan,
+      "subscription.memberLimit": AppConstants.unlimitedMembers,
+      "subscription.isActive": true,
+      "subscription.amountPaid": AppConstants.quarterlyPrice,
+      "subscription.paymentStatus": AppConstants.paymentPaid,
+      "subscription.startDate": now,
+      "subscription.endDate": endDate,
+    });
+  }
+
+  Future<void> activateHalfYearlyPlan() async {
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final now = DateTime.now();
+
+    final baseDate = await _getSubscriptionBaseDate();
+
+    final endDate = DateTime(
+      baseDate.year,
+      baseDate.month + 6,
+      baseDate.day,
+    );
+
+    await _firestore
+        .collection("gyms")
+        .doc(uid)
+        .update({
+
+      "subscription.plan": AppConstants.halfYearlyPlan,
+      "subscription.memberLimit": AppConstants.unlimitedMembers,
+      "subscription.isActive": true,
+      "subscription.amountPaid": AppConstants.halfYearlyPrice,
+      "subscription.paymentStatus": AppConstants.paymentPaid,
+      "subscription.startDate": now,
+      "subscription.endDate": endDate,
+    });
   }
 
   Future<void> activateYearlyPlan() async {
@@ -80,10 +134,12 @@ class SubscriptionService {
 
     final now = DateTime.now();
 
+    final baseDate = await _getSubscriptionBaseDate();
+
     final endDate = DateTime(
-      now.year + 1,
-      now.month,
-      now.day,
+      baseDate.year + 1,
+      baseDate.month,
+      baseDate.day,
     );
 
     await _firestore
@@ -92,19 +148,11 @@ class SubscriptionService {
         .update({
 
       "subscription.plan": AppConstants.yearlyPlan,
-
-      "subscription.memberLimit": -1,
-
+      "subscription.memberLimit": AppConstants.unlimitedMembers,
       "subscription.isActive": true,
-
-      "subscription.amountPaid":
-      AppConstants.yearlyPrice,
-
-      "subscription.paymentStatus":
-      AppConstants.paymentPaid,
-
+      "subscription.amountPaid": AppConstants.yearlyPrice,
+      "subscription.paymentStatus": AppConstants.paymentPaid,
       "subscription.startDate": now,
-
       "subscription.endDate": endDate,
     });
 
@@ -121,6 +169,37 @@ class SubscriptionService {
     if (!doc.exists) return null;
 
     return doc.data()?["subscription"];
+  }
+
+  //helper for end date issue
+
+  Future<DateTime> _getSubscriptionBaseDate() async {
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final gymDoc = await _firestore
+        .collection("gyms")
+        .doc(uid)
+        .get();
+
+    final subscription = gymDoc.data()?["subscription"];
+
+    final Timestamp? endTimestamp =
+    subscription?["endDate"];
+
+    final today = DateTime.now();
+
+    if (endTimestamp == null) {
+      return today;
+    }
+
+    final currentEndDate = endTimestamp.toDate();
+
+    if (currentEndDate.isAfter(today)) {
+      return currentEndDate;
+    }
+
+    return today;
   }
 
 }

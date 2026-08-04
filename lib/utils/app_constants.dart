@@ -1,16 +1,26 @@
 class AppConstants {
   // Subscription Plans
   static const String freePlan = "FREE";
+
+  // Trial Plan
+  static const String freeTrialPlan = "Free Trial";
+  static const int freeTrialDays = 5;
+
+// Paid Plans
   static const String monthlyPlan = "MONTHLY";
   static const String yearlyPlan = "YEARLY";
+  static const String quarterlyPlan = "QUARTERLY";
+  static const String halfYearlyPlan = "HALF_YEARLY";
 
   // Member Limits
-  static const int freeMemberLimit = 5;
+  static const int freeMemberLimit = 20;
   static const int unlimitedMembers = -1;
 
   // Pricing (Launch Offer)
   static const double monthlyPrice = 249;
   static const double yearlyPrice = 1899;
+  static const double quarterlyPrice = 699;
+  static const double halfYearlyPrice = 1299;
 
   // Original Pricing
   static const double monthlyOriginalPrice = 499;

@@ -70,8 +70,7 @@ class _MemberListPageState extends State<MemberListPage> {
 
                 onTap: () async {
 
-                  final status =
-                  await subscriptionGuard.getSubscriptionStatus();
+                  final status = await subscriptionGuard.getSubscriptionStatus();
 
                   if (status == SubscriptionStatus.active ||
                       status == SubscriptionStatus.gracePeriod) {

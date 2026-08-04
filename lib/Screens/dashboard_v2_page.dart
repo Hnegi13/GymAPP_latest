@@ -8,7 +8,9 @@ import 'dashboard/quick_action_bar.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../modal/gym.dart';
-import '../services/gym_service.dart';
+import 'dashboard/trial_banner.dart';
+
+
 
 class DashboardV2Page extends StatefulWidget {
   const DashboardV2Page({super.key});
@@ -26,87 +28,126 @@ class _DashboardV2PageState extends State<DashboardV2Page> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FB),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+     body: FutureBuilder<Gym?>(
+         future: gymService.getGym(
+           user.uid,
+         ),
+   builder: (context, snapshot) {
+  if (!snapshot.hasData) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
 
-            const HeaderWidget(),
+  final gym = snapshot.data!;
 
-            Transform.translate(
-              offset: const Offset(0, -70),
-              child: StreamBuilder<int>(
-                stream: firestoreService.getMembersCountStream(),
-                builder: (context, membersSnapshot) {
+  final today = DateTime.now();
 
-                  if (!membersSnapshot.hasData) {
-                    return const StatsPanel(
+  final currentDate = DateTime(
+    today.year,
+    today.month,
+    today.day,
+  );
+
+  final endDate = DateTime(
+    gym.subscription.endDate.year,
+    gym.subscription.endDate.month,
+    gym.subscription.endDate.day,
+  );
+
+  final daysRemaining =
+      endDate.difference(currentDate).inDays + 1;
+
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        HeaderWidget(gym: gym),
+
+        Transform.translate(
+          offset: const Offset(0, -70),
+          child: StreamBuilder<int>(
+            stream: firestoreService.getMembersCountStream(),
+            builder: (context, membersSnapshot) {
+              if (!membersSnapshot.hasData) {
+                return const StatsPanel(
+                  attendanceCount: "0",
+                  membersCount: "0",
+                  expiringCount: "0",
+                  expiredCount: "0",
+                );
+              }
+
+              return StreamBuilder<int>(
+                stream: firestoreService.getExpiringMembersCountStream(),
+                builder: (context, expiringSnapshot) {
+                  if (!expiringSnapshot.hasData) {
+                    return StatsPanel(
+                      membersCount: membersSnapshot.data.toString(),
                       attendanceCount: "0",
-                      membersCount: "0",
                       expiringCount: "0",
                       expiredCount: "0",
                     );
                   }
 
                   return StreamBuilder<int>(
-                    stream: firestoreService.getExpiringMembersCountStream(),
-                    builder: (context, expiringSnapshot) {
-
-                      if (!expiringSnapshot.hasData) {
+                    stream: firestoreService.getExpiredMembersCountStream(),
+                    builder: (context, expiredSnapshot) {
+                      if (!expiredSnapshot.hasData) {
                         return StatsPanel(
                           membersCount: membersSnapshot.data.toString(),
                           attendanceCount: "0",
-                          expiringCount: "0",
+                          expiringCount: expiringSnapshot.data.toString(),
                           expiredCount: "0",
                         );
                       }
 
                       return StreamBuilder<int>(
-                        stream: firestoreService.getExpiredMembersCountStream(),
-                        builder: (context, expiredSnapshot) {
-
-                          if (!expiredSnapshot.hasData) {
-                            return StatsPanel(
-                              membersCount: membersSnapshot.data.toString(),
-                              attendanceCount: "0",
-                              expiringCount: expiringSnapshot.data.toString(),
-                              expiredCount: "0",
-                            );
-                          }
-
-                          return StreamBuilder<int>(
-                            stream: attendanceService.getTodayAttendanceCountStream(),
-                            builder: (context, attendanceSnapshot) {
-
-                              return StatsPanel(
-                                membersCount: membersSnapshot.data.toString(),
-                                attendanceCount:
-                                (attendanceSnapshot.data ?? 0).toString(),
-                                expiringCount: expiringSnapshot.data.toString(),
-                                expiredCount: expiredSnapshot.data.toString(),
-                              );
-
-                            },
+                        stream: attendanceService
+                            .getTodayAttendanceCountStream(),
+                        builder: (context, attendanceSnapshot) {
+                          return StatsPanel(
+                            membersCount: membersSnapshot.data.toString(),
+                            attendanceCount:
+                            (attendanceSnapshot.data ?? 0).toString(),
+                            expiringCount: expiringSnapshot.data.toString(),
+                            expiredCount: expiredSnapshot.data.toString(),
                           );
                         },
                       );
                     },
                   );
                 },
-              ),
-            ),
-
-            Transform.translate(
-              offset: const Offset(0, -50),
-              child: const QuickActionBar(),
-            ),
-
-            const SizedBox(height: 20),
-
-          ],
+              );
+            },
+          ),
         ),
-      ),
-    );
+
+        Transform.translate(
+          offset: const Offset(0, -60),
+          child: const QuickActionBar(),
+        ),
+
+        Transform.translate(
+          offset: const Offset(0, -60),
+          child: TrialBanner(
+            daysRemaining: daysRemaining,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+      ],
+    ),
+  );
+}
+),
+);
   }
 }

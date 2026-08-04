@@ -212,6 +212,215 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             const SizedBox(height: 20),
 
+
+            buildPlanCard(
+              title: "Quarterly",
+              price: "₹699",
+              oldPrice: "₹1497",
+              savings: "Save ₹798",
+              buttonText: "Upgrade",
+              highlight: false,
+              onPressed: () async {
+
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Upgrade to Quarterly Plan"),
+
+                      content: Text(
+                        "This will activate the Quarterly Plan for ₹${AppConstants.quarterlyPrice}.\n\n"
+                            "Payment is being simulated for now.",
+                      ),
+
+                      actions: [
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Text("Continue"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirm != true) return;
+
+                paymentService.openCheckout(
+                  name: "Gym Manager Pro",
+                  description: "Quarterly Subscription",
+                  amount: AppConstants.quarterlyPrice,
+                  email: "YOUR_EMAIL",
+                  contact: "YOUR_PHONE_NUMBER",
+
+                  onSuccess: (paymentId) async {
+
+                    final now = DateTime.now();
+                    final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+
+                    final payment = Payment(
+                      paymentId: paymentId,
+                      receiptNumber: receiptNumber,
+                      plan: AppConstants.quarterlyPlan,
+                      amount: AppConstants.quarterlyPrice,
+                      paymentMethod: "UPI",
+                      paymentStatus: AppConstants.paymentPaid,
+                      paymentDate: now,
+                      startDate: now,
+                      endDate: DateTime(
+                        now.year,
+                        now.month + 3,
+                        now.day,
+                      ),
+                      transactionType: "NEW",
+                    );
+
+                    await paymentHistoryService.savePayment(payment);
+
+                    await subscriptionService.activateQuarterlyPlan();
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Quarterly Subscription Activated Successfully!",
+                        ),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  },
+
+                  onFailure: (message) {
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            buildPlanCard(
+              title: "Half-Yearly",
+              price: "₹1299",
+              oldPrice: "₹2994",
+              savings: "Save ₹1695",
+              buttonText: "Upgrade",
+              highlight: false,
+              onPressed: () async {
+
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Upgrade to Half-Yearly Plan"),
+
+                      content: Text(
+                        "This will activate the Half-Yearly Plan for ₹${AppConstants.halfYearlyPrice}.\n\n"
+                            "Payment is being simulated for now.",
+                      ),
+
+                      actions: [
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Text("Continue"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirm != true) return;
+
+                paymentService.openCheckout(
+                  name: "Gym Manager Pro",
+                  description: "Half-Yearly Subscription",
+                  amount: AppConstants.halfYearlyPrice,
+                  email: "YOUR_EMAIL",
+                  contact: "YOUR_PHONE_NUMBER",
+
+                  onSuccess: (paymentId) async {
+
+                    final now = DateTime.now();
+                    final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+
+                    final payment = Payment(
+                      paymentId: paymentId,
+                      receiptNumber: receiptNumber,
+                      plan: AppConstants.halfYearlyPlan,
+                      amount: AppConstants.halfYearlyPrice,
+                      paymentMethod: "UPI",
+                      paymentStatus: AppConstants.paymentPaid,
+                      paymentDate: now,
+                      startDate: now,
+                      endDate: DateTime(
+                        now.year,
+                        now.month + 6,
+                        now.day,
+                      ),
+                      transactionType: "NEW",
+                    );
+
+                    await paymentHistoryService.savePayment(payment);
+
+                    await subscriptionService.activateHalfYearlyPlan();
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Half-Yearly Subscription Activated Successfully!",
+                        ),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  },
+
+                  onFailure: (message) {
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
+
             buildPlanCard(
               title: "Yearly ⭐",
               price: "₹1899",

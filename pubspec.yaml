@@ -73,6 +73,8 @@ flutter:
 
   assets:
     - lib/assets/images/app_logo.png
+    - lib/assets/images/gym_background.png
+    - lib/assets/images/google_logo.png
 
 flutter_launcher_icons:
       android: true

@@ -20,7 +20,7 @@ class QuickActionBar extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 12),
           ),
         ],
       ),

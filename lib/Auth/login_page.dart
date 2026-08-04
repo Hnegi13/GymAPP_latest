@@ -1,81 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:gym_app/Auth/widgets/contact_card.dart';
 import 'auth_service.dart';
+import 'widgets/welcome_header.dart';
+import 'widgets/feature_section.dart';
+import 'widgets/google_signin_button.dart';
+import 'widgets/footer_widget.dart';
+
 
 class LoginPage extends StatelessWidget {
-   LoginPage({super.key});
+  LoginPage({super.key});
 
   final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.white,
 
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(25),
-
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children:  [
 
-              const Icon(
-                Icons.fitness_center,
-                size: 90,
-                color: Colors.deepPurple,
+              WelcomeHeader(),
+
+              Transform.translate(
+                offset: const Offset(0, -20),
+                child: const FeatureSection(),
               ),
 
-              const SizedBox(height: 20),
+               SizedBox(height: 0),
 
-              const Text(
-                "Gym Manager",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+              GoogleSignInButton(
+                onPressed: () async {
+                  try {
+                    await authService.signInWithGoogle();
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
+                  }
+                },
               ),
+
+              const SizedBox(height: 12),
+
+              const ContactCard(),
+              const SizedBox(height: 12),
+
+              FooterWidget(),
+
+              const SizedBox(height: 16),
 
               const SizedBox(height: 10),
 
-              const Text(
-                "Manage your gym with ease",
+              Text(
+                "Version 1.0.0",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   color: Colors.grey,
-                ),
-              ),
-
-              const SizedBox(height: 50),
-
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    try {
-                      await authService.signInWithGoogle();
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(e.toString()),
-                        ),
-                      );
-                    }
-                  },
-
-                  icon: const Icon(Icons.login),
-
-                  label: const Text(
-                    "Continue with Google",
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                  ),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
 
