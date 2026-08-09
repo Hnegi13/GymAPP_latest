@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../utils/app_constants.dart';
+
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
 
@@ -47,7 +49,7 @@ class _AboutPageState extends State<AboutPage> {
             const SizedBox(height: 6),
 
             Text(
-              "Version 1.0.0",
+              "Version ${AppConstants.appVersion}",
               style: TextStyle(
                 color: Colors.grey.shade600,
               ),

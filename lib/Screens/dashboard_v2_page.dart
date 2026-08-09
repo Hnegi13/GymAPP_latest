@@ -4,11 +4,12 @@ import '../Screens/dashboard/stats_panel.dart';
 import '../services/attendance_service.dart';
 import '../services/firestore_service.dart';
 import '../services/gym_service.dart';
+import 'dashboard/banners/banner_manager.dart';
 import 'dashboard/quick_action_bar.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../modal/gym.dart';
-import 'dashboard/trial_banner.dart';
+import 'dashboard/subscription_status_banner.dart';
 
 
 
@@ -136,9 +137,7 @@ class _DashboardV2PageState extends State<DashboardV2Page> {
 
         Transform.translate(
           offset: const Offset(0, -60),
-          child: TrialBanner(
-            daysRemaining: daysRemaining,
-          ),
+          child: BannerManager()
         ),
 
         const SizedBox(height: 20),

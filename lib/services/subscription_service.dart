@@ -66,6 +66,7 @@ class SubscriptionService {
       "subscription.paymentStatus": AppConstants.paymentPaid,
       "subscription.startDate": now,
       "subscription.endDate": endDate,
+      "subscription.status": "active",
     });
 
   }
@@ -96,6 +97,7 @@ class SubscriptionService {
       "subscription.paymentStatus": AppConstants.paymentPaid,
       "subscription.startDate": now,
       "subscription.endDate": endDate,
+      "subscription.status": "active",
     });
   }
 
@@ -125,6 +127,7 @@ class SubscriptionService {
       "subscription.paymentStatus": AppConstants.paymentPaid,
       "subscription.startDate": now,
       "subscription.endDate": endDate,
+      "subscription.status": "active",
     });
   }
 
@@ -154,9 +157,11 @@ class SubscriptionService {
       "subscription.paymentStatus": AppConstants.paymentPaid,
       "subscription.startDate": now,
       "subscription.endDate": endDate,
+      "subscription.status": "active",
     });
 
   }
+
   Future<Map<String, dynamic>?> getSubscription() async {
 
     final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -168,10 +173,77 @@ class SubscriptionService {
 
     if (!doc.exists) return null;
 
-    return doc.data()?["subscription"];
+    final subscription =
+    doc.data()?["subscription"];
+
+    if (subscription == null) return null;
+
+    // Automatic Migration
+    if (!subscription.containsKey("status")) {
+
+      await _updateSubscriptionStatus(uid, subscription);
+
+      // Read again after update
+      final updatedDoc = await _firestore
+          .collection("gyms")
+          .doc(uid)
+          .get();
+
+      return updatedDoc.data()?["subscription"];
+    }
+
+    return subscription;
+
   }
 
-  //helper for end date issue
+
+  //
+
+  Future<void> _updateSubscriptionStatus(
+      String uid,
+      Map<String, dynamic> subscription,
+      ) async {
+
+    final today = DateTime.now();
+
+    final endDate =
+    (subscription["endDate"] as Timestamp).toDate();
+
+    String status;
+
+    if (today.isBefore(endDate) ||
+        today.isAtSameMomentAs(endDate)) {
+
+      status = "active";
+
+    } else {
+
+      final difference = today.difference(endDate).inDays;
+
+      if (difference <= AppConstants.subscriptionGraceDays) {
+
+        status = "gracePeriod";
+
+      } else {
+
+        status = "restricted";
+
+      }
+
+    }
+
+    await _firestore
+        .collection("gyms")
+        .doc(uid)
+        .update({
+
+      "subscription.status": status,
+
+    });
+
+  }
+
+  //helper for deciding end date issue(Usefull when someone upgrade plan before end date or before trial finishes)
 
   Future<DateTime> _getSubscriptionBaseDate() async {
 
@@ -184,8 +256,7 @@ class SubscriptionService {
 
     final subscription = gymDoc.data()?["subscription"];
 
-    final Timestamp? endTimestamp =
-    subscription?["endDate"];
+    final Timestamp? endTimestamp = subscription?["endDate"];
 
     final today = DateTime.now();
 

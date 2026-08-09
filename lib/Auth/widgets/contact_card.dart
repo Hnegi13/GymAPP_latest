@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../Screens/more/contact_us_page.dart';
+
 class ContactCard extends StatelessWidget {
   const ContactCard({super.key});
 
@@ -15,7 +17,12 @@ class ContactCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
           onTap: () {
-            // TODO: Open Contact Us page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ContactUsPage(),
+              ),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(

@@ -6,7 +6,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../modal/gym.dart';
-import '../dashboard/profile_page.dart';
+import 'profile/profile_page.dart';
 
 class HeaderWidget extends StatelessWidget {
 

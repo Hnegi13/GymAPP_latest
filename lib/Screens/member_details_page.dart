@@ -57,8 +57,7 @@ class _MemberDetailsPageState extends State<MemberDetailsPage> {
             icon: const Icon(Icons.edit),
             onPressed: () async {
 
-              final status =
-              await subscriptionGuard.getSubscriptionStatus();
+              final status = await subscriptionGuard.getSubscriptionStatus();
 
               if (status != SubscriptionStatus.active) {
 

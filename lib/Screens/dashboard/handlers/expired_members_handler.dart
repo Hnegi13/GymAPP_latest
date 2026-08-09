@@ -17,54 +17,13 @@ class ExpiredMembersHandler {
   static final SubscriptionGuardService subscriptionGuard = SubscriptionGuardService();
 
   static Future<void> execute(BuildContext context) async {
-    final status = await subscriptionGuard.getSubscriptionStatus();
 
-    // same subscription validation
-
-    if (status != SubscriptionStatus.active) {
-
-
-      final renew = await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Subscription Expired"),
-            content: const Text(
-              "Renew your subscription to access the Expiring Members feature.",
-            ),
-            actions: [
-
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text("Later"),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text("Renew Now"),
-              ),
-
-            ],
-          );
-        },
-      );
-
-      if (renew == true) {
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const SubscriptionPage(),
-          ),
-        );
-
-      }
-
+    if (!await SubscriptionGuardService.checkSubscriptionAccess(
+      context,
+      featureName: "Expired Members",
+    )) {
       return;
+
     }
     final List<Member> members = await firestoreService.getExpiredMembers();
     Navigator.push(

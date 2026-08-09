@@ -39,4 +39,28 @@ class AppConstants {
   //Subscription Guard Service logic
   static const int subscriptionGraceDays = 3;
 
+  //More functionality Related
+
+  // static const String supportEmail = "support@gymmanagerpro.in";
+  static const String supportEmail = "gym.manager.haldwani@gmail.com";
+ // static const String featureRequestEmail = "features@gymmanagerpro.in";
+  static const String featureRequestEmail = "gym.manager.haldwani@gmail.com";
+  // static const String supportPhone = "+91XXXXXXXXXX";
+  static const String supportPhone = "+917579220114";
+  static const String businessHours = "Monday - Saturday\n9:00 AM - 7:00 PM";
+  static const String appVersion = "1.0.0";
+
+
+  // Subscripition status
+
+  static const String trialStatus = "trial";
+  static const String activeStatus = "active";
+  static const String gracePeriodStatus = "gracePeriod";
+  static const String restrictedStatus = "restricted";
+
+  //app Version
+
+
+
+
 }

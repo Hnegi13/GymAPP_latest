@@ -10,11 +10,18 @@ import '../utils/app_constants.dart';
 import 'auth_service.dart';
 
 class RegisterGymPage extends StatefulWidget {
-  const RegisterGymPage({super.key});
+
+  final bool isEditMode;
+
+  const RegisterGymPage({
+    super.key,
+    this.isEditMode = false,
+  });
 
   @override
   State<RegisterGymPage> createState() => _RegisterGymPageState();
 }
+
 
 class _RegisterGymPageState extends State<RegisterGymPage> {
 
@@ -31,18 +38,33 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
   final GymService gymService = GymService();
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEditMode) {
+      loadGymDetails();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("Register Gym"),
+        title: Text(
+          widget.isEditMode
+              ? "Edit Profile"
+              : "Register Gym",
+        ),
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         elevation: 0,
 
-        actions: [
+        actions: widget.isEditMode
+            ? null
+            : [
           TextButton(
             onPressed: () async {
               await authService.signOut();
@@ -200,9 +222,8 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
                     amountPaid: 0,
                     paymentStatus: "TRIAL",
                     startDate: DateTime.now(),
-                    endDate: DateTime.now().add(
-                      Duration(days: AppConstants.freeTrialDays),
-                    ),
+                    endDate: DateTime.now().add(Duration(days: AppConstants.freeTrialDays),),
+                    status: "trial",
                   );
 
 
@@ -219,19 +240,35 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
 
                   await gymService.saveGym(gym);
 
-                  if (context.mounted) {
+                  if (!context.mounted) return;
+
+                  if (widget.isEditMode) {
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Profile updated successfully."),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+
+                  } else {
+
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>const HomePage(),
+                        builder: (_) => const HomePage(),
                       ),
                     );
+
                   }
 
                 },
 
-                child: const Text(
-                  "Continue",
+                child: Text(
+                  widget.isEditMode
+                      ? "Save Changes"
+                      : "Continue",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -247,6 +284,27 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
       ),
     );
   }
+
+
+  Future<void> loadGymDetails() async {
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final gym = await gymService.getGym(uid);
+
+    if (gym == null) return;
+
+    gymNameController.text = gym.gymName;
+    ownerNameController.text = gym.ownerName;
+    phoneController.text = gym.phone;
+    locationController.text = gym.location;
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+
 
   Widget requiredLabel(String text) {
     return RichText(

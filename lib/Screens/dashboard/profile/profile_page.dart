@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../services/gym_service.dart';
+import '../../../Auth/logout_service.dart';
+import '../../../Auth/register_gym_page.dart';
+import '../../../services/gym_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../profile/about_page.dart';
-import '../profile/notification_page.dart';
-import '../profile/privacy_policy_page.dart';
-import '../profile/settings_page.dart';
-import '../profile/terms_conditions_page.dart';
+import '../../profile/about_page.dart';
+import '../../profile/notification_page.dart';
+import '../../profile/privacy_policy_page.dart';
+import '../../profile/settings_page.dart';
+import '../../profile/terms_conditions_page.dart';
 
-import '../../auth/auth_service.dart';
-import '../../widgets/logout_dialog.dart';
+import '../../../auth/auth_service.dart';
+import '../../../widgets/logout_dialog.dart';
+import 'payment_settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -75,9 +78,27 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
 
-                  const CircleAvatar(
-                    radius: 35,
-                    child: Icon(Icons.person, size: 35),
+                  GestureDetector(
+                    onTap: () async {
+
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterGymPage(
+                            isEditMode: true,
+                          ),
+                        ),
+                      );
+
+                      loadGymDetails();
+                    },
+                    child: const CircleAvatar(
+                      radius: 35,
+                      child: Icon(
+                        Icons.person,
+                        size: 35,
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 10),
@@ -131,6 +152,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const SettingsPage(),
+                  ),
+                );
+              },
+            ),
+
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.qr_code_2_outlined),
+              title: const Text("Payment Settings"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PaymentSettingsPage(),
                   ),
                 );
               },
@@ -201,11 +238,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 final shouldLogout = await showLogoutDialog(context);
 
                 if (shouldLogout == true) {
-                  await authService.signOut();
+                  await LogoutService.logout(context);
 
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
                 }
               },
             ),

@@ -189,6 +189,45 @@ class FirestoreService {
     return count;
   }
 
+  Future<List<Member>> getActiveMembers() async {
+
+    final snapshot = await _membersCollection.get();
+
+    List<Member> members = [];
+
+    for (var doc in snapshot.docs) {
+
+      final data = doc.data();
+
+      DateTime endDate =
+      (data['endDate'] as Timestamp).toDate();
+
+      if (endDate.isAfter(DateTime.now())) {
+
+        members.add(
+
+          Member(
+            id: doc.id,
+            name: data['name'],
+            phone: data['phone'],
+            age: data['age'],
+            plan: data['plan'],
+            fee: data['fee'],
+            startDate: (data['startDate'] as Timestamp).toDate(),
+            endDate: endDate,
+            isActive: data['isActive'],
+          ),
+
+        );
+
+      }
+
+    }
+
+    return members;
+
+  }
+
   Future<void> renewMembership({
     required String id,
     required DateTime newEndDate,

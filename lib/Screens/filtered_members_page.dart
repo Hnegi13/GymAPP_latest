@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_app/Screens/payment_request/payment_request_page.dart';
 import '../modal/member.dart';
 import 'member_details_page.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -107,6 +108,17 @@ class FilteredMembersPage extends StatelessWidget {
                 if (value == "sms") {
                   sendSMS(members[index]);
                 }
+
+                if (value == "payment") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentRequestPage(
+                        member: members[index],
+                      ),
+                    ),
+                  );
+                }
               },
 
               itemBuilder: (context) => [
@@ -140,6 +152,19 @@ class FilteredMembersPage extends StatelessWidget {
                       Icon(Icons.sms, color: Colors.blue),
                       SizedBox(width: 10),
                       Text("SMS Reminder"),
+                    ],
+                  ),
+                ),
+
+                //new Request payment
+
+                const PopupMenuItem(
+                  value: "payment",
+                  child: Row(
+                    children: [
+                      Icon(Icons.payments, color: Colors.deepPurple),
+                      SizedBox(width: 10),
+                      Text("Request Payment"),
                     ],
                   ),
                 ),

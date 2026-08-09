@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gym_app/Screens/more/rate_app_page.dart';
+import 'package:gym_app/Screens/more/suggest_feature_page.dart';
 
-import '../../services/gym_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../profile/about_page.dart';
-import '../profile/notification_page.dart';
-import '../profile/privacy_policy_page.dart';
-import '../profile/settings_page.dart';
-import '../profile/terms_conditions_page.dart';
-
-import '../../auth/auth_service.dart';
-import '../../widgets/logout_dialog.dart';
+import '../../utils/app_constants.dart';
+import 'bulk_messaging_page.dart';
+import 'contact_us_page.dart';
+import 'export_members_page.dart';
 
 class MorePage extends StatefulWidget {
   const MorePage({super.key});
@@ -19,201 +15,225 @@ class MorePage extends StatefulWidget {
 }
 
 class _MorePageState extends State<MorePage> {
-  String ownerName = "";
-  String gymName = "";
-  final GymService gymService = GymService();
 
   @override
   void initState() {
     super.initState();
-    loadGymDetails();
-  }
 
-  Future<void> loadGymDetails() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
-
-    final gym = await gymService.getGym(uid);
-
-    if (gym != null) {
-      setState(() {
-        ownerName = gym.ownerName;
-        gymName = gym.gymName;
-      });
-    }
+    // Future initialization
   }
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-
-    Future<void> loadGymDetails() async {
-      final uid = FirebaseAuth.instance.currentUser!.uid;
-
-      final gym = await gymService.getGym(uid);
-
-      if (gym != null) {
-        setState(() {
-          ownerName = gym.ownerName;
-          gymName = gym.gymName;
-        });
-      }
-    }
 
     return Scaffold(
+
       appBar: AppBar(
         title: const Text("More"),
         centerTitle: true,
       ),
 
-        body: SafeArea(
-          child: ListView(
+      body: ListView(
         children: [
-
-          const SizedBox(height: 20),
-
-          Center(
-            child: Column(
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                const CircleAvatar(
-                  radius: 35,
-                  child: Icon(Icons.person, size: 35),
-                ),
-
-                const SizedBox(height: 10),
+                SizedBox(height: 6),
 
                 Text(
-                  ownerName,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  gymName,
+                  "Business Tools & Support",
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
               ],
             ),
           ),
 
-          ListTile(
-            leading: const Icon(Icons.notifications_outlined),
-            title: const Text("Notifications"),
-            trailing: const Icon(Icons.chevron_right),
+          buildSectionTitle("Business Tools"),
+
+          buildMoreTile(
+            icon: Icons.campaign_outlined,
+            title: "Bulk Messaging",
+            subtitle: "Coming Soon",
+            onTap: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                const BulkMessagingPage(),
+
+              ),
+            );},
+          ),
+
+
+          buildMoreTile(
+            icon: Icons.file_download_outlined,
+            title: "Export Members",
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const NotificationPage(),
+                  builder: (_) => const ExportMembersPage(),
                 ),
               );
             },
           ),
 
-          const Divider(),
+          const SizedBox(height: 12),
 
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text("Settings"),
-            trailing: const Icon(Icons.chevron_right),
+          buildSectionTitle("Support"),
+
+          buildMoreTile(
+            icon: Icons.support_agent_outlined,
+            title: "Contact Us",
             onTap: () {
-              Navigator.push(
-                context,
+              Navigator.push(context,
                 MaterialPageRoute(
-                  builder: (_) => const SettingsPage(),
+                  builder: (_) => const ContactUsPage(),
                 ),
               );
             },
           ),
 
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text("Privacy Policy"),
-            trailing: const Icon(Icons.chevron_right),
+          buildMoreTile(
+            icon: Icons.star_outline,
+            title: "Rate App",
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const PrivacyPolicyPage(),
+                  builder: (_) => const RateAppPage(),
                 ),
               );
             },
           ),
 
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: const Text("Terms & Conditions"),
-            trailing: const Icon(Icons.chevron_right),
+          buildMoreTile(
+            icon: Icons.lightbulb_outline,
+            title: "Suggest a Feature",
             onTap: () {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const TermsConditionsPage(),
+                  builder: (_) =>
+                  const SuggestFeaturePage(),
                 ),
               );
+
             },
           ),
 
-          const Divider(),
+          const Divider(height: 28),
 
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text("About"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AboutPage(),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 18),
+            child: Center(
+              child: Text(
+                "Gym Manager Pro\nVersion ${AppConstants.appVersion}",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
                 ),
-              );
-            },
-          ),
-
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(
-              Icons.logout,
-              color: Colors.red,
-            ),
-            title: const Text(
-              "Logout",
-              style: TextStyle(
-                color: Colors.red,
               ),
             ),
-            onTap: () async {
-
-              final shouldLogout =
-              await showLogoutDialog(context);
-
-              if (shouldLogout == true) {
-                await authService.signOut();
-              }
-
-            },
           ),
-
         ],
       ),
+    );
+  }
+
+  Widget buildSectionTitle(String title) {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade100,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade700,
+          letterSpacing: 1,
         ),
+      ),
     );
   }
 
 
+  Widget buildMoreTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      children: [
+
+        ListTile(
+          dense: true,
+          visualDensity: const VisualDensity(vertical: -2),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+          ),
+
+          leading: Icon(
+            icon,
+            size: 22,
+          ),
+
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.orange.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+
+          trailing: Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: Colors.grey.shade400,
+          ),
+
+          onTap: onTap,
+        ),
+
+        Divider(
+          height: 1,
+          indent: 56,
+          endIndent: 16,
+          color: Colors.grey.shade200,
+        ),
+      ],
+    );
+  }
 }

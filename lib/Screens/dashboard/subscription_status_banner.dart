@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../services/subscription_guard_service.dart';
 import '../subscription_page.dart';
 
-class TrialBanner extends StatelessWidget {
+class SubscriptionStatusBanner extends StatelessWidget {
+  final SubscriptionStatus status;
   final int daysRemaining;
+  final String? planName;
 
-  const TrialBanner({
+  const SubscriptionStatusBanner({
     super.key,
+
+    required this.status,
+
     required this.daysRemaining,
+
+    this.planName,
   });
 
   @override

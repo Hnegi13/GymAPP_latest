@@ -6,6 +6,7 @@ class Subscription {
   final String paymentStatus;
   final DateTime startDate;
   final DateTime endDate;
+  final String status;
 
   const Subscription({
     required this.plan,
@@ -15,6 +16,7 @@ class Subscription {
     required this.paymentStatus,
     required this.startDate,
     required this.endDate,
+    required this.status,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class Subscription {
       'paymentStatus': paymentStatus,
       'startDate': startDate,
       'endDate': endDate,
+      'status': status,
     };
   }
 
@@ -38,6 +41,7 @@ class Subscription {
       paymentStatus: map['paymentStatus'],
       startDate: map['startDate'].toDate(),
       endDate: map['endDate'].toDate(),
+      status: map['status'] ?? "",
     );
   }
 }

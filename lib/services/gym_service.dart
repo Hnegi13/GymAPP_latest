@@ -3,8 +3,7 @@ import '../modal/gym.dart';
 
 class GymService {
 
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> saveGym(Gym gym) async {
 

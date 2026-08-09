@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/subscription_guard_service.dart';
 import '../Profile/notification_page.dart';
 import '../add_member_page.dart';
 import '../subscription_page.dart';
@@ -45,8 +46,20 @@ class QuickActionBar extends StatelessWidget {
                 icon: Icons.person_add_alt_1,
                 title: "Add Member",
                 color: Colors.blue,
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+
+                  final allowed =
+                  await SubscriptionGuardService.checkAddMemberAccess(
+                    context,
+                  );
+
+                  if (!allowed) {
+                    return;
+                  }
+
+                  if (!context.mounted) return;
+
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const AddMemberPage(),

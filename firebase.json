@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"gym-manager-12b44","appId":"1:967891616771:android:fc29573136e0fd6d67ba36","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"gym-manager-12b44","configurations":{"android":"1:967891616771:android:fc29573136e0fd6d67ba36","web":"1:967891616771:web:d70179a4d80d838067ba36"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "gym-manager-12b44",
+          "appId": "1:967891616771:android:fc29573136e0fd6d67ba36",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "gym-manager-12b44",
+          "configurations": {
+            "android": "1:967891616771:android:fc29573136e0fd6d67ba36",
+            "web": "1:967891616771:web:d70179a4d80d838067ba36"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}
