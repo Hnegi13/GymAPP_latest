@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_app/Screens/payment/payment_options_page.dart';
 import '../services/subscription_service.dart';
 import '../utils/app_constants.dart';
 import '../services/payment_service.dart';
@@ -110,9 +111,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Monthly",
-              price: "₹249",
-              oldPrice: "₹499",
-              savings: "Save ₹250",
+              price: "₹${AppConstants.monthlyPrice.toStringAsFixed(0)}",
+              oldPrice: "₹${AppConstants.monthlyOriginalPrice.toStringAsFixed(0)}",
+              savings: "Save ₹${AppConstants.monthlySavings.toStringAsFixed(0)}",
               buttonText: "Upgrade",
               highlight: false,
               onPressed: () async {
@@ -124,8 +125,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       title: const Text("Upgrade to Monthly Plan"),
 
                       content: Text(
-                        "This will activate the Monthly Plan for ₹${AppConstants.monthlyPrice}.\n\n"
-                            "Payment is being simulated for now.",
+                        "This will activate the Monthly Plan for ₹${AppConstants.monthlyPrice}.",
                       ),
 
                       actions: [
@@ -139,7 +139,18 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pop(context, true);
+                            // Navigator.pop(context, true);
+                            //testing
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PaymentOptionsPage(
+                                  plan: AppConstants.monthlyPlan,
+                                  amount: AppConstants.monthlyPrice,
+                                ),
+                              ),
+                            );
+
                           },
                           child: const Text("Continue"),
                         ),
@@ -173,7 +184,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                         startDate: now,
                         endDate: DateTime(
                           now.year,
-                          now.month + 1,
+                          now.month + AppConstants.monthlyDurationMonths,
                           now.day,
                         ),
                         transactionType: "NEW",
@@ -215,9 +226,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Quarterly",
-              price: "₹699",
-              oldPrice: "₹1497",
-              savings: "Save ₹798",
+              price: "₹${AppConstants.quarterlyPrice.toStringAsFixed(0)}",
+              oldPrice: "₹${AppConstants.quarterlyOriginalPrice.toStringAsFixed(0)}",
+              savings: "Save ₹${AppConstants.quarterlySavings.toStringAsFixed(0)}",
               buttonText: "Upgrade",
               highlight: false,
               onPressed: () async {
@@ -278,7 +289,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       startDate: now,
                       endDate: DateTime(
                         now.year,
-                        now.month + 3,
+                        now.month + AppConstants.quarterlyDurationMonths,
                         now.day,
                       ),
                       transactionType: "NEW",
@@ -319,9 +330,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Half-Yearly",
-              price: "₹1299",
-              oldPrice: "₹2994",
-              savings: "Save ₹1695",
+              price: "₹${AppConstants.halfYearlyPrice.toStringAsFixed(0)}",
+              oldPrice: "₹${AppConstants.halfYearlyOriginalPrice.toStringAsFixed(0)}",
+              savings: "Save ₹${AppConstants.halfYearlySavings.toStringAsFixed(0)}",
               buttonText: "Upgrade",
               highlight: false,
               onPressed: () async {
@@ -333,8 +344,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       title: const Text("Upgrade to Half-Yearly Plan"),
 
                       content: Text(
-                        "This will activate the Half-Yearly Plan for ₹${AppConstants.halfYearlyPrice}.\n\n"
-                            "Payment is being simulated for now.",
+                        "This will activate the Half-Yearly Plan for ₹${AppConstants.halfYearlyPrice}.",
                       ),
 
                       actions: [
@@ -382,7 +392,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       startDate: now,
                       endDate: DateTime(
                         now.year,
-                        now.month + 6,
+                        now.month + AppConstants.halfYearlyDurationMonths,
                         now.day,
                       ),
                       transactionType: "NEW",
@@ -423,9 +433,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
             buildPlanCard(
               title: "Yearly ⭐",
-              price: "₹1899",
-              oldPrice: "₹5000",
-              savings: "Save ₹3101",
+              price: "₹${AppConstants.yearlyPrice.toStringAsFixed(0)}",
+              oldPrice: "₹${AppConstants.yearlyOriginalPrice.toStringAsFixed(0)}",
+              savings: "Save ₹${AppConstants.yearlySavings.toStringAsFixed(0)}",
               buttonText: "Upgrade",
               highlight: true,
               onPressed: () async {
@@ -437,7 +447,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       title: const Text("Upgrade to Yearly Plan"),
 
                       content: Text(
-                        "This will activate the Yearly Plan for ₹${AppConstants.yearlyPlan}.\n\n"
+                        "This will activate the Yearly Plan for "
+                            "₹${AppConstants.yearlyPrice}.\n\n"
                             "Payment is being simulated for now.",
                       ),
 

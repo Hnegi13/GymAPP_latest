@@ -16,15 +16,34 @@ class AppConstants {
   static const int freeMemberLimit = 20;
   static const int unlimitedMembers = -1;
 
-  // Pricing (Launch Offer)
-  static const double monthlyPrice = 249;
-  static const double yearlyPrice = 1899;
-  static const double quarterlyPrice = 699;
-  static const double halfYearlyPrice = 1299;
+  // Subscription Pricing
 
-  // Original Pricing
+// Monthly
+  static const double monthlyPrice = 1;
   static const double monthlyOriginalPrice = 499;
+  static const int monthlyDurationMonths = 1;
+  static double get monthlySavings => monthlyOriginalPrice - monthlyPrice;
+  static const String razorpayMonthlyPaymentLink = "https://rzp.io/rzp/SkDBeFm";
+
+// Quarterly
+  static const double quarterlyPrice = 699;
+  static const double quarterlyOriginalPrice = 1497;
+  static const int quarterlyDurationMonths = 3;
+  static double get quarterlySavings => quarterlyOriginalPrice - quarterlyPrice;
+
+// Half-Yearly
+  static const double halfYearlyPrice = 1299;
+  static const double halfYearlyOriginalPrice = 2994;
+  static const int halfYearlyDurationMonths = 6;
+  static double get halfYearlySavings => halfYearlyOriginalPrice - halfYearlyPrice;
+
+// Yearly
+  static const double yearlyPrice = 1899;
   static const double yearlyOriginalPrice = 5000;
+  static const int yearlyDurationMonths = 12;
+  static double get yearlySavings => yearlyOriginalPrice - yearlyPrice;
+
+
 
   // Payment Status
   static const String paymentFree = "FREE";
@@ -58,7 +77,8 @@ class AppConstants {
   static const String gracePeriodStatus = "gracePeriod";
   static const String restrictedStatus = "restricted";
 
-  //app Version
+// MPIN Security
+  static const bool enableMpin = true;
 
 
 

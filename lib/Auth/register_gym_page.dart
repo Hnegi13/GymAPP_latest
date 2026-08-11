@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../Screens/MPIN/create_mpin_page.dart';
 import '../Screens/home/home_page.dart';
 import '../modal/gym.dart';
 import '../services/gym_service.dart';
@@ -232,6 +233,8 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
                     gymName: gymNameController.text,
                     ownerName: ownerNameController.text,
                     location: locationController.text.trim(),
+                    state: stateController.text.trim(),
+                    country: countryController.text.trim(),
                     phone: phoneController.text,
                     email: user.email ?? "",
                     createdAt: DateTime.now(),
@@ -254,13 +257,30 @@ class _RegisterGymPageState extends State<RegisterGymPage> {
 
                   } else {
 
+                    if (AppConstants.enableMpin) {
+
+                      final mpinCreated = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CreateMpinPage(),
+                        ),
+                      );
+
+                      if (!context.mounted) return;
+
+                      if (mpinCreated != true) {
+                        return;
+                      }
+                    }
+
+                    if (!context.mounted) return;
+
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const HomePage(),
                       ),
                     );
-
                   }
 
                 },

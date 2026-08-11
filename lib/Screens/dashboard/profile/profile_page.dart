@@ -12,6 +12,7 @@ import '../../profile/terms_conditions_page.dart';
 
 import '../../../auth/auth_service.dart';
 import '../../../widgets/logout_dialog.dart';
+import 'cancellation_refund_policy_page.dart';
 import 'payment_settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -200,6 +201,24 @@ class _ProfilePageState extends State<ProfilePage> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const TermsConditionsPage(),
+                  ),
+                );
+              },
+            ),
+
+
+
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.currency_exchange_outlined),
+              title: const Text("Cancellation & Refund Policy"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CancellationRefundPolicyPage(),
                   ),
                 );
               },

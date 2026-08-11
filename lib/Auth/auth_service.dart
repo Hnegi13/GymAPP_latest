@@ -33,4 +33,29 @@ class AuthService {
     await _googleSignIn.signOut();
     await _auth.signOut();
   }
+
+  Future<void> reauthenticateWithGoogle() async {
+    final GoogleSignInAccount? googleUser =
+    await _googleSignIn.signIn();
+
+    if (googleUser == null) {
+      throw Exception("Google Sign-In cancelled");
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+    await googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception("No authenticated user found");
+    }
+
+    await user.reauthenticateWithCredential(credential);
+  }
 }
