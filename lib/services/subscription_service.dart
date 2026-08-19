@@ -2,6 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/app_constants.dart';
 
+
+class SubscriptionPeriod {
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const SubscriptionPeriod({
+    required this.startDate,
+    required this.endDate,
+  });
+}
+
+
 class SubscriptionService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -40,126 +52,81 @@ class SubscriptionService {
     return members.docs.length < memberLimit;
   }
 
-  Future<void> activateMonthlyPlan() async {
-
+  Future<void> activateMonthlyPlan({
+    required SubscriptionPeriod period,
+  }) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-
-    final now = DateTime.now();
-
-    final baseDate = await _getSubscriptionBaseDate();
-
-    final endDate = DateTime(
-      baseDate.year,
-      baseDate.month + 1,
-      baseDate.day,
-    );
 
     await _firestore
         .collection("gyms")
         .doc(uid)
         .update({
-
       "subscription.plan": AppConstants.monthlyPlan,
       "subscription.memberLimit": AppConstants.unlimitedMembers,
       "subscription.isActive": true,
       "subscription.amountPaid": AppConstants.monthlyPrice,
       "subscription.paymentStatus": AppConstants.paymentPaid,
-      "subscription.startDate": now,
-      "subscription.endDate": endDate,
+      "subscription.endDate": period.endDate,
       "subscription.status": "active",
     });
-
   }
 
-  Future<void> activateQuarterlyPlan() async {
-
+  Future<void> activateQuarterlyPlan({
+    required SubscriptionPeriod period,
+  }) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-
-    final now = DateTime.now();
-
-    final baseDate = await _getSubscriptionBaseDate();
-
-    final endDate = DateTime(
-      baseDate.year,
-      baseDate.month + 3,
-      baseDate.day,
-    );
 
     await _firestore
         .collection("gyms")
         .doc(uid)
         .update({
-
       "subscription.plan": AppConstants.quarterlyPlan,
       "subscription.memberLimit": AppConstants.unlimitedMembers,
       "subscription.isActive": true,
       "subscription.amountPaid": AppConstants.quarterlyPrice,
       "subscription.paymentStatus": AppConstants.paymentPaid,
-      "subscription.startDate": now,
-      "subscription.endDate": endDate,
+      "subscription.endDate": period.endDate,
       "subscription.status": "active",
     });
   }
 
-  Future<void> activateHalfYearlyPlan() async {
-
+  Future<void> activateHalfYearlyPlan({
+    required SubscriptionPeriod period,
+  }) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-
-    final now = DateTime.now();
-
-    final baseDate = await _getSubscriptionBaseDate();
-
-    final endDate = DateTime(
-      baseDate.year,
-      baseDate.month + 6,
-      baseDate.day,
-    );
 
     await _firestore
         .collection("gyms")
         .doc(uid)
         .update({
-
       "subscription.plan": AppConstants.halfYearlyPlan,
       "subscription.memberLimit": AppConstants.unlimitedMembers,
       "subscription.isActive": true,
       "subscription.amountPaid": AppConstants.halfYearlyPrice,
       "subscription.paymentStatus": AppConstants.paymentPaid,
-      "subscription.startDate": now,
-      "subscription.endDate": endDate,
+      "subscription.endDate": period.endDate,
       "subscription.status": "active",
     });
   }
 
-  Future<void> activateYearlyPlan() async {
-
+  Future<void> activateYearlyPlan({
+    required SubscriptionPeriod period,
+  }) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-
-    final now = DateTime.now();
-
-    final baseDate = await _getSubscriptionBaseDate();
-
-    final endDate = DateTime(
-      baseDate.year + 1,
-      baseDate.month,
-      baseDate.day,
-    );
 
     await _firestore
         .collection("gyms")
         .doc(uid)
         .update({
-
-      "subscription.plan": AppConstants.yearlyPlan,
+      "subscription.plan":
+      AppConstants.yearlyPlan,
       "subscription.memberLimit": AppConstants.unlimitedMembers,
       "subscription.isActive": true,
       "subscription.amountPaid": AppConstants.yearlyPrice,
       "subscription.paymentStatus": AppConstants.paymentPaid,
-      "subscription.startDate": now,
-      "subscription.endDate": endDate,
+      "subscription.endDate": period.endDate,
       "subscription.status": "active",
     });
-
   }
 
   Future<Map<String, dynamic>?> getSubscription() async {
@@ -271,6 +238,23 @@ class SubscriptionService {
     }
 
     return today;
+  }
+
+  Future<SubscriptionPeriod> getNextSubscriptionPeriod({
+    required int durationMonths,
+  }) async {
+    final baseDate = await _getSubscriptionBaseDate();
+
+    final endDate = DateTime(
+      baseDate.year,
+      baseDate.month + durationMonths,
+      baseDate.day,
+    );
+
+    return SubscriptionPeriod(
+      startDate: baseDate,
+      endDate: endDate,
+    );
   }
 
 }

@@ -5,7 +5,7 @@ import '../utils/app_constants.dart';
 import '../services/payment_service.dart';
 import '../services/payment_history_service.dart';
 import '../modal/payment.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 
 
 class SubscriptionPage extends StatefulWidget {
@@ -16,12 +16,37 @@ class SubscriptionPage extends StatefulWidget {
 }
 
 class _SubscriptionPageState extends State<SubscriptionPage> {
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadGym();
+  // }
+  //
+  // Future<void> _loadGym() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //
+  //   if (user == null) return;
+  //
+  //   final loadedGym = await gymService.getGym(user.uid);
+  //
+  //   if (!mounted) return;
+  //
+  //   setState(() {
+  //     gym = loadedGym;
+  //   });
+  // }
+
+
+
   final SubscriptionService subscriptionService = SubscriptionService();
   final PaymentService paymentService = PaymentService();
   final PaymentHistoryService paymentHistoryService = PaymentHistoryService();
+  // final GymService gymService = GymService();
+  //
+  // Gym? gym;
 
   Future<void> upgradeToMonthly() async {}
-
   Future<void> upgradeToYearly() async {}
 
   @override
@@ -139,17 +164,17 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
                         ElevatedButton(
                           onPressed: () {
-                            // Navigator.pop(context, true);
+                            Navigator.pop(context, true);
                             //testing
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PaymentOptionsPage(
-                                  plan: AppConstants.monthlyPlan,
-                                  amount: AppConstants.monthlyPrice,
-                                ),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => PaymentOptionsPage(
+                            //       plan: AppConstants.monthlyPlan,
+                            //       amount: AppConstants.monthlyPrice,
+                            //     ),
+                            //   ),
+                            // );
 
                           },
                           child: const Text("Continue"),
@@ -168,44 +193,49 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   email: "YOUR_EMAIL",
                   contact: "YOUR_PHONE_NUMBER",
 
-                    onSuccess: (paymentId) async {
+                  onSuccess: (paymentId) async {
 
-                      final now = DateTime.now();
-                      final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+                    final now = DateTime.now();
 
-                      final payment = Payment(
-                        paymentId: paymentId,
-                        receiptNumber: receiptNumber,
-                        plan: AppConstants.monthlyPlan,
-                        amount: AppConstants.monthlyPrice,
-                        paymentMethod: "UPI",
-                        paymentStatus: AppConstants.paymentPaid,
-                        paymentDate: now,
-                        startDate: now,
-                        endDate: DateTime(
-                          now.year,
-                          now.month + AppConstants.monthlyDurationMonths,
-                          now.day,
+                    final period =
+                    await subscriptionService.getNextSubscriptionPeriod(
+                      durationMonths:
+                      AppConstants.monthlyDurationMonths,
+                    );
+
+                    final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+
+                    final payment = Payment(
+                      paymentId: paymentId,
+                      receiptNumber: receiptNumber,
+                      plan: AppConstants.monthlyPlan,
+                      amount: AppConstants.monthlyPrice,
+                      paymentMethod: "UPI",
+                      paymentStatus: AppConstants.paymentPaid,
+                      paymentDate: now,
+                      startDate: period.startDate,
+                      endDate: period.endDate,
+                      transactionType: "NEW",
+                    );
+
+                    await paymentHistoryService.savePayment(payment);
+
+                    await subscriptionService.activateMonthlyPlan(
+                      period: period,
+                    );
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Monthly Subscription Activated Successfully!",
                         ),
-                        transactionType: "NEW",
-                      );
+                      ),
+                    );
 
-                      await paymentHistoryService.savePayment(payment);
-
-                      await subscriptionService.activateMonthlyPlan();
-
-                      if (!mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Monthly Subscription Activated Successfully!",
-                          ),
-                        ),
-                      );
-
-                      Navigator.pop(context);
-                    },
+                    Navigator.pop(context);
+                  },
 
                   onFailure: (message) {
 
@@ -220,6 +250,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 );
               },
             ),
+
+            //Quarterly
 
             const SizedBox(height: 20),
 
@@ -276,7 +308,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   onSuccess: (paymentId) async {
 
                     final now = DateTime.now();
-                    final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+
+                    final period =
+                    await subscriptionService.getNextSubscriptionPeriod(
+                      durationMonths:
+                      AppConstants.quarterlyDurationMonths,
+                    );
+
+                    final receiptNumber =
+                    await paymentHistoryService.generateReceiptNumber();
 
                     final payment = Payment(
                       paymentId: paymentId,
@@ -286,18 +326,16 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       paymentMethod: "UPI",
                       paymentStatus: AppConstants.paymentPaid,
                       paymentDate: now,
-                      startDate: now,
-                      endDate: DateTime(
-                        now.year,
-                        now.month + AppConstants.quarterlyDurationMonths,
-                        now.day,
-                      ),
+                      startDate: period.startDate,
+                      endDate: period.endDate,
                       transactionType: "NEW",
                     );
 
                     await paymentHistoryService.savePayment(payment);
 
-                    await subscriptionService.activateQuarterlyPlan();
+                    await subscriptionService.activateQuarterlyPlan(
+                      period: period,
+                    );
 
                     if (!mounted) return;
 
@@ -379,7 +417,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   onSuccess: (paymentId) async {
 
                     final now = DateTime.now();
-                    final receiptNumber = await paymentHistoryService.generateReceiptNumber();
+
+                    final period =
+                    await subscriptionService.getNextSubscriptionPeriod(
+                      durationMonths:
+                      AppConstants.halfYearlyDurationMonths,
+                    );
+
+                    final receiptNumber =
+                    await paymentHistoryService.generateReceiptNumber();
 
                     final payment = Payment(
                       paymentId: paymentId,
@@ -389,18 +435,16 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       paymentMethod: "UPI",
                       paymentStatus: AppConstants.paymentPaid,
                       paymentDate: now,
-                      startDate: now,
-                      endDate: DateTime(
-                        now.year,
-                        now.month + AppConstants.halfYearlyDurationMonths,
-                        now.day,
-                      ),
+                      startDate: period.startDate,
+                      endDate: period.endDate,
                       transactionType: "NEW",
                     );
 
                     await paymentHistoryService.savePayment(payment);
 
-                    await subscriptionService.activateHalfYearlyPlan();
+                    await subscriptionService.activateHalfYearlyPlan(
+                      period: period,
+                    );
 
                     if (!mounted) return;
 
@@ -439,28 +483,22 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               buttonText: "Upgrade",
               highlight: true,
               onPressed: () async {
-
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
                       title: const Text("Upgrade to Yearly Plan"),
-
                       content: Text(
                         "This will activate the Yearly Plan for "
-                            "₹${AppConstants.yearlyPrice}.\n\n"
-                            "Payment is being simulated for now.",
+                            "₹${AppConstants.yearlyPrice}.",
                       ),
-
                       actions: [
-
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context, false);
                           },
                           child: const Text("Cancel"),
                         ),
-
                         ElevatedButton(
                           onPressed: () {
                             Navigator.pop(context, true);
@@ -474,19 +512,68 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
                 if (confirm != true) return;
 
-                await subscriptionService.activateYearlyPlan();
+                paymentService.openCheckout(
+                  name: "Gym Manager Pro",
+                  description: "Yearly Subscription",
+                  amount: AppConstants.yearlyPrice,
+                  email: "YOUR_EMAIL",
+                  contact: "YOUR_PHONE_NUMBER",
 
-                if (!mounted) return;
+                  onSuccess: (paymentId) async {
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Yearly Subscription Activated Successfully!",
-                    ),
-                  ),
+                    final now = DateTime.now();
+
+                    final period =
+                    await subscriptionService.getNextSubscriptionPeriod(
+                      durationMonths:
+                      AppConstants.yearlyDurationMonths,
+                    );
+
+                    final receiptNumber =
+                    await paymentHistoryService.generateReceiptNumber();
+
+                    final payment = Payment(
+                      paymentId: paymentId,
+                      receiptNumber: receiptNumber,
+                      plan: AppConstants.yearlyPlan,
+                      amount: AppConstants.yearlyPrice,
+                      paymentMethod: "UPI",
+                      paymentStatus: AppConstants.paymentPaid,
+                      paymentDate: now,
+                      startDate: period.startDate,
+                      endDate: period.endDate,
+                      transactionType: "NEW",
+                    );
+
+                    await paymentHistoryService.savePayment(payment);
+
+                    await subscriptionService.activateYearlyPlan(
+                      period: period,
+                    );
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Yearly Subscription Activated Successfully!",
+                        ),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  },
+
+                  onFailure: (message) {
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                      ),
+                    );
+                  },
                 );
-
-                Navigator.pop(context);
               },
             ),
 

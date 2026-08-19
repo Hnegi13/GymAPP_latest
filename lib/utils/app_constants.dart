@@ -19,7 +19,7 @@ class AppConstants {
   // Subscription Pricing
 
 // Monthly
-  static const double monthlyPrice = 1;
+  static const double monthlyPrice = 249;
   static const double monthlyOriginalPrice = 499;
   static const int monthlyDurationMonths = 1;
   static double get monthlySavings => monthlyOriginalPrice - monthlyPrice;

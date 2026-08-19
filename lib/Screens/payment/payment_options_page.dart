@@ -168,4 +168,39 @@ class PaymentOptionsPage extends StatelessWidget {
       ),
     );
   }
+
+  Future<bool> showPaymentConfirmationDialog(
+      BuildContext context,
+      String plan,
+      double amount,
+      ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Upgrade to $plan Plan"),
+          content: Text(
+            "This will activate the $plan Plan for ₹${amount.toStringAsFixed(0)}.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text("Continue"),
+            ),
+          ],
+        );
+      },
+    );
+
+    return confirm == true;
+  }
+
 }
