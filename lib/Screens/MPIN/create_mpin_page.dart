@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../../services/mpin_service.dart';
 
 class CreateMpinPage extends StatefulWidget {
-  const CreateMpinPage({super.key});
+  final VoidCallback? onMpinCreated;
+
+  const CreateMpinPage({
+    super.key,
+    this.onMpinCreated,
+  });
 
   @override
   State<CreateMpinPage> createState() => _CreateMpinPageState();
@@ -43,9 +48,15 @@ class _CreateMpinPageState extends State<CreateMpinPage> {
 
     await _mpinService.saveMpin(mpin);
 
+    await _mpinService.setMpinConfigured();
+
     if (!mounted) return;
 
-    Navigator.pop(context, true);
+    if (widget.onMpinCreated != null) {
+      widget.onMpinCreated!();
+    } else {
+      Navigator.pop(context, true);
+    }
   }
 
   void _showMessage(String message) {

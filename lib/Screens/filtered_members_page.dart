@@ -23,7 +23,7 @@ class FilteredMembersPage extends StatelessWidget {
 
     if (members.isEmpty) {
 
-      final message = title == "Membership Expiring"
+      final message = title == "Expiring Members"
           ? "No memberships are expiring soon."
           : "No expired memberships.\nAll members are active.";
 

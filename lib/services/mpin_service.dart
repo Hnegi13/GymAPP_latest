@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -55,4 +56,21 @@ class MpinService {
       key: _getMpinKey(),
     );
   }
+
+  Future<void> setMpinConfigured() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception("No authenticated user found");
+    }
+
+    await FirebaseFirestore.instance
+        .collection('gyms')
+        .doc(user.uid)
+        .update({
+      'mpinConfigured': true,
+    });
+  }
+
+
 }

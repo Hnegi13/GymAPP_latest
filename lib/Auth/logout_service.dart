@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../auth/auth_service.dart';
+import 'auth_gate.dart';
 
 class LogoutService {
   static Future<void> logout(BuildContext context) async {
@@ -10,7 +11,11 @@ class LogoutService {
 
     if (!context.mounted) return;
 
-    Navigator.of(context).popUntil((route) => route.isFirst,
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const AuthGate(),
+      ),
+          (route) => false,
     );
   }
 }
