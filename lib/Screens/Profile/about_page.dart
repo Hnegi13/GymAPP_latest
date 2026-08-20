@@ -154,7 +154,7 @@ class _AboutPageState extends State<AboutPage> {
             const SizedBox(height: 6),
 
             const Text(
-              "Himanshu Negi",
+              "Negi Enterprise",
               style: TextStyle(fontSize: 16),
             ),
 

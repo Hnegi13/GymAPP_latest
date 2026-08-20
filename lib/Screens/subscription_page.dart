@@ -42,6 +42,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   final SubscriptionService subscriptionService = SubscriptionService();
   final PaymentService paymentService = PaymentService();
   final PaymentHistoryService paymentHistoryService = PaymentHistoryService();
+
+  // Razorpay payments temporarily disabled
+  static const bool paymentEnabled = false;
   // final GymService gymService = GymService();
   //
   // Gym? gym;
@@ -670,7 +673,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: onPressed,
+                onPressed: paymentEnabled ? onPressed : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   padding: const EdgeInsets.symmetric(vertical: 15),

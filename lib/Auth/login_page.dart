@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_app/Auth/widgets/contact_card.dart';
+import '../utils/app_constants.dart';
 import 'auth_service.dart';
 import 'widgets/welcome_header.dart';
 import 'widgets/feature_section.dart';
@@ -58,7 +59,7 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 10),
 
               Text(
-                "Version 1.0.0",
+                "Version ${AppConstants.appVersion}",
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey,

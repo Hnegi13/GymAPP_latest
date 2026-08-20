@@ -158,16 +158,18 @@ class FilteredMembersPage extends StatelessWidget {
 
                 //new Request payment
 
-                const PopupMenuItem(
-                  value: "payment",
-                  child: Row(
-                    children: [
-                      Icon(Icons.payments, color: Colors.deepPurple),
-                      SizedBox(width: 10),
-                      Text("Request Payment"),
-                    ],
+                // Request Payment only for expired members
+                if (isExpired)
+                  const PopupMenuItem(
+                    value: "payment",
+                    child: Row(
+                      children: [
+                        Icon(Icons.payments, color: Colors.deepPurple),
+                        SizedBox(width: 10),
+                        Text("Request Payment"),
+                      ],
+                    ),
                   ),
-                ),
 
               ],
             ),
