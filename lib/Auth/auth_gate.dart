@@ -64,8 +64,11 @@ class _AuthGateState extends State<AuthGate> {
 
         final uid = authSnapshot.data!.uid;
 
-        return FutureBuilder(
-          future: GymService().getGym(uid),
+        return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          future: FirebaseFirestore.instance
+              .collection('gyms')
+              .doc(uid)
+              .get(),
           builder: (context, gymSnapshot) {
             if (gymSnapshot.connectionState ==
                 ConnectionState.waiting) {
@@ -76,9 +79,13 @@ class _AuthGateState extends State<AuthGate> {
               );
             }
 
-            if (gymSnapshot.data == null) {
+            // Gym document does not exist
+            if (!gymSnapshot.hasData ||
+                !gymSnapshot.data!.exists) {
               return const RegisterGymPage();
             }
+
+            final gymData = gymSnapshot.data!.data();
 
             // MPIN disabled
             if (!AppConstants.enableMpin) {
@@ -91,13 +98,23 @@ class _AuthGateState extends State<AuthGate> {
               return const HomePage();
             }
 
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('gyms')
-                  .doc(uid)
-                  .get(),
-              builder: (context, mpinConfigSnapshot) {
-                if (mpinConfigSnapshot.connectionState ==
+            // Check MPIN configuration from the same
+            // Firestore document we already fetched.
+            final mpinConfigured =
+                gymData?['mpinConfigured'] == true;
+
+            // MPIN has never been configured
+            if (!mpinConfigured) {
+              _updateLastLogin(uid);
+              return const HomePage();
+            }
+
+            // MPIN is configured in Firebase.
+            // Now check whether the actual MPIN exists locally.
+            return FutureBuilder<bool>(
+              future: MpinService().isMpinSet(),
+              builder: (context, localMpinSnapshot) {
+                if (localMpinSnapshot.connectionState ==
                     ConnectionState.waiting) {
                   return const Scaffold(
                     body: Center(
@@ -106,51 +123,23 @@ class _AuthGateState extends State<AuthGate> {
                   );
                 }
 
-                final data =
-                mpinConfigSnapshot.data?.data()
-                as Map<String, dynamic>?;
+                // MPIN was configured previously,
+                // but local storage was cleared.
+                if (localMpinSnapshot.data != true) {
+                  return CreateMpinPage(
+                    onMpinCreated: () {
+                      setState(() {
+                        _verifiedUid = uid;
+                      });
 
-                final mpinConfigured = data?['mpinConfigured'] == true;
-
-                // MPIN has never been configured
-                if (!mpinConfigured) {
-                  _updateLastLogin(uid);
-                  return const HomePage();
+                      _updateLastLogin(uid);
+                    },
+                  );
                 }
 
-                // MPIN is configured in Firebase.
-                // Now check whether the actual MPIN exists locally.
-                return FutureBuilder<bool>(
-                  future: MpinService().isMpinSet(),
-                  builder: (context, localMpinSnapshot) {
-                    if (localMpinSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Scaffold(
-                        body: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-
-                    // MPIN was configured previously,
-                    // but local storage/cache was cleared.
-                    if (localMpinSnapshot.data != true) {
-                      return CreateMpinPage(
-                        onMpinCreated: () {
-                          setState(() {
-                            _verifiedUid = uid;
-                          });
-
-                          _updateLastLogin(uid);
-                        },
-                      );
-                    }
-
-                    // MPIN exists locally and must be verified.
-                    return EnterMpinPage(
-                      onVerified: _onMpinVerified,
-                    );
-                  },
+                // MPIN exists locally and must be verified.
+                return EnterMpinPage(
+                  onVerified: _onMpinVerified,
                 );
               },
             );
