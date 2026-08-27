@@ -1,9 +1,12 @@
 const {setGlobalOptions} = require("firebase-functions");
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+
 const admin = require("firebase-admin");
 const axios = require("axios");
 const APP_CONSTANTS = require("./app_constants");
+
 
 admin.initializeApp();
 
@@ -473,4 +476,84 @@ exports.sendSubscriptionEmail = onDocumentCreated(
         );
       }
     },
+
+    // Delete Gym Manager account
+    exports.deleteGymManagerAccount = onCall(
+        async (request) => {
+          // User must be authenticated with Firebase Authentication.
+          if (!request.auth) {
+            throw new HttpsError(
+                "unauthenticated",
+                "You must be signed in to delete your account.",
+            );
+          }
+
+          const uid = request.auth.uid;
+
+          try {
+            const firestore = admin.firestore();
+
+            // Gym documents use the Firebase Authentication UID
+            // as their document ID.
+            const gymRef = firestore
+                .collection("gyms")
+                .doc(uid);
+
+            const gymSnapshot = await gymRef.get();
+
+            if (!gymSnapshot.exists) {
+              throw new HttpsError(
+                  "not-found",
+                  "Gym account data was not found.",
+              );
+            }
+
+            console.log("Deleting Gym Manager account:", uid);
+
+            /*
+                 * recursiveDelete removes:
+                 *
+                 * gyms/{uid}
+                 * gyms/{uid}/members/*
+                 * gyms/{uid}/payments/*
+                 *
+                 * and any other subcollections belonging
+                 * to this gym document.
+                 *
+                 * It does NOT touch the top-level attendance
+                 * collection or system/receipt_counter.
+                 */
+            await firestore.recursiveDelete(gymRef);
+
+            // Finally delete the Firebase Authentication account.
+            await admin.auth().deleteUser(uid);
+
+            console.log(
+                "Gym Manager account deleted successfully:",
+                uid,
+            );
+
+            return {
+              success: true,
+              message: "Account deleted successfully.",
+            };
+          } catch (error) {
+            console.error(
+                "Account deletion failed:",
+                error,
+            );
+
+            if (error instanceof HttpsError) {
+              throw error;
+            }
+
+            throw new HttpsError(
+                "internal",
+                "Unable to delete the account.",
+            );
+          }
+        },
+    ),
+
+
 );

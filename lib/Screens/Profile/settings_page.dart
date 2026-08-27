@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/settings_service.dart';
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -152,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Permanently delete your gym account",
               ),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
+              onTap: _openDeleteAccountPage,
             ),
           ),
 
@@ -195,4 +196,25 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+
+  Future<void> _openDeleteAccountPage() async {
+    final Uri url = Uri.parse(
+      'https://gym-manager-12b44.web.app',
+    );
+
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unable to open account deletion page."),
+        ),
+      );
+    }
+  }
+
+
 }
