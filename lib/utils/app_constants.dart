@@ -80,6 +80,20 @@ class AppConstants {
 // MPIN Security
   static const bool enableMpin = true;
 
+  // Demo / Admin Accounts
+  static const String demoAdmin1Email = "gymmanager.testing1@gmail.com";
+  static const String demoAdmin2Email = "gymmanager.testing2@gmail.com";
+  static const String demoAdmin1GymId = "zsPSPbkhhThhPbLhxZJL";
+
+  static const String demoAdmin1Name = "Demo Admin 1";
+  static const String demoAdmin2Name = "Demo Admin 2";
+  static const String demoAdmin2GymId = "zsPSPbkhhThhPbLhxZJL";
+
+  static const String demoAdmin1Mpin = "657311";
+  static const String demoAdmin2Mpin = "657311";
+
+
+
 
 
 

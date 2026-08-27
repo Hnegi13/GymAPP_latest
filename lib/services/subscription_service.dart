@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/app_constants.dart';
+import '../utils/app_session.dart';
 
 
 class SubscriptionPeriod {
@@ -18,9 +19,22 @@ class SubscriptionService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String get _gymId {
+    final gymId = AppSession.isDemoMode
+        ? AppSession.currentGymId
+        : FirebaseAuth.instance.currentUser?.uid;
+
+    if (gymId == null) {
+      throw StateError('No gym ID available for the current session.');
+    }
+
+    return gymId;
+  }
+
+
   Future<bool> canAddMember() async {
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     // Gym document
     final gymDoc = await _firestore
@@ -55,7 +69,7 @@ class SubscriptionService {
   Future<void> activateMonthlyPlan({
     required SubscriptionPeriod period,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     await _firestore
         .collection("gyms")
@@ -74,7 +88,7 @@ class SubscriptionService {
   Future<void> activateQuarterlyPlan({
     required SubscriptionPeriod period,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     await _firestore
         .collection("gyms")
@@ -93,7 +107,7 @@ class SubscriptionService {
   Future<void> activateHalfYearlyPlan({
     required SubscriptionPeriod period,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     await _firestore
         .collection("gyms")
@@ -112,7 +126,7 @@ class SubscriptionService {
   Future<void> activateYearlyPlan({
     required SubscriptionPeriod period,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     await _firestore
         .collection("gyms")
@@ -131,7 +145,7 @@ class SubscriptionService {
 
   Future<Map<String, dynamic>?> getSubscription() async {
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     final doc = await _firestore
         .collection("gyms")
@@ -214,7 +228,7 @@ class SubscriptionService {
 
   Future<DateTime> _getSubscriptionBaseDate() async {
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = _gymId;
 
     final gymDoc = await _firestore
         .collection("gyms")

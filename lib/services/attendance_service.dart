@@ -3,9 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../modal/attendance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../utils/app_session.dart';
+
 class AttendanceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference attendanceCollection = FirebaseFirestore.instance.collection('attendance');
+
+  String get _gymId {
+    final gymId = AppSession.isDemoMode
+        ? AppSession.currentGymId
+        : FirebaseAuth.instance.currentUser?.uid;
+
+    if (gymId == null) {
+      throw StateError('No gym ID available for the current session.');
+    }
+
+    return gymId;
+  }
 
 
   Future<bool> isAttendanceMarkedToday(String memberId) async {
@@ -21,7 +35,7 @@ class AttendanceService {
     final todayEnd = todayStart.add(
       const Duration(days: 1),
     );
-    final gymId = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = _gymId;
 
     final snapshot = await attendanceCollection
         .where('gymId', isEqualTo: gymId)
@@ -47,7 +61,7 @@ class AttendanceService {
   }) async {
 
     final alreadyMarked = await isAttendanceMarkedToday(memberId);
-    final gymId = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = _gymId;
 
     if (alreadyMarked) {
       return false;
@@ -79,7 +93,7 @@ class AttendanceService {
   Future<int> getTodayAttendanceCount() async {
 
     final now = DateTime.now();
-    final gymId = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = _gymId;
 
     final todayStart = DateTime(
       now.year,
@@ -112,7 +126,7 @@ class AttendanceService {
     final dayEnd = dayStart.add(
       const Duration(days: 1),
     );
-    final gymId = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = _gymId;
 
     final snapshot = await attendanceCollection
         .where('gymId', isEqualTo: gymId)
@@ -142,7 +156,7 @@ class AttendanceService {
 
     final todayEnd = todayStart
         .add(const Duration(days: 1),);
-    final gymId = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = _gymId;
 
     return attendanceCollection
         .where('gymId', isEqualTo: gymId)
