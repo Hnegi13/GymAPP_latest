@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../Screens/dashboard/header_widget.dart';
 import '../Screens/dashboard/stats_panel.dart';
 import '../services/attendance_service.dart';
+import '../services/device_info_service.dart';
 import '../services/firestore_service.dart';
 import '../services/gym_service.dart';
+import '../utils/app_session.dart';
 import 'dashboard/banners/banner_manager.dart';
 import 'dashboard/quick_action_bar.dart';
 
@@ -22,6 +24,13 @@ class DashboardV2Page extends StatefulWidget {
 
 class _DashboardV2PageState extends State<DashboardV2Page> {
 
+  @override
+  void initState() {
+    super.initState();
+
+    DeviceInfoService().saveDeviceInfo();
+  }
+
   final FirestoreService firestoreService = FirestoreService();
   final AttendanceService attendanceService = AttendanceService();
   final GymService gymService = GymService();
@@ -31,17 +40,42 @@ class _DashboardV2PageState extends State<DashboardV2Page> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) {
+    final gymId = AppSession.isDemoMode
+        ? AppSession.currentGymId
+        : user?.uid;
+
+    if (gymId == null) {
+      print(gymId);
       return const SizedBox.shrink();
     }
+
+    debugPrint(
+      "DEMO MODE: ${AppSession.isDemoMode}, "
+          "GYM ID: ${AppSession.currentGymId}, "
+          "FINAL GYM ID: $gymId",
+    );
+
+
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FB),
      body: FutureBuilder<Gym?>(
-         future: gymService.getGym(
-           user.uid,
-         ),
+         future: gymService.getGym(gymId,),
    builder: (context, snapshot) {
-  if (!snapshot.hasData) {
+     if (snapshot.hasError) {
+       return Center(
+         child: Padding(
+           padding: const EdgeInsets.all(20),
+           child: Text(
+             "Dashboard error:\n${snapshot.error}",
+             textAlign: TextAlign.center,
+           ),
+         ),
+       );
+     }
+
+
+
+     if (!snapshot.hasData) {
     return const Center(
       child: CircularProgressIndicator(),
     );

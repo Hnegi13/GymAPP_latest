@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_app/Auth/widgets/contact_card.dart';
 import '../utils/app_constants.dart';
+import 'admin_selection_page.dart';
 import 'auth_service.dart';
 import 'widgets/welcome_header.dart';
 import 'widgets/feature_section.dart';
@@ -43,6 +44,12 @@ class LoginPage extends StatelessWidget {
                         SnackBar(content: Text(e.toString())),
                       );
                     }
+                  }catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
                   }
                 },
               ),
@@ -54,13 +61,32 @@ class LoginPage extends StatelessWidget {
 
               FooterWidget(),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 1),
 
-              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminSelectionPage(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Login with Admin",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.deepPurple,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
 
               Text(
                 "Version ${AppConstants.appVersion}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,

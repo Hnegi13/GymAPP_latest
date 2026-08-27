@@ -2,16 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../modal/member.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../utils/app_session.dart';
+
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _membersCollection {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final gymId = AppSession.isDemoMode
+        ? AppSession.currentGymId
+        : FirebaseAuth.instance.currentUser?.uid;
+
+    if (gymId == null) {
+      throw StateError('No gym ID available for the current session.');
+    }
 
     return _firestore
         .collection('gyms')
-        .doc(uid)
+        .doc(gymId)
         .collection('members');
   }
 

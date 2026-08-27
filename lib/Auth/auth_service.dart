@@ -16,8 +16,7 @@ class AuthService {
     }
 
     // Get Google authentication
-    final GoogleSignInAuthentication googleAuth =
-    await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
     // Create Firebase credential
     final credential = GoogleAuthProvider.credential(
@@ -42,8 +41,7 @@ class AuthService {
       throw Exception("Google Sign-In cancelled");
     }
 
-    final GoogleSignInAuthentication googleAuth =
-    await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
@@ -57,5 +55,27 @@ class AuthService {
     }
 
     await user.reauthenticateWithCredential(credential);
+  }
+
+  Future<void> linkDemoPassword({
+    required String email,
+    required String password,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception("No authenticated user found");
+    }
+
+    if (user.email != email) {
+      throw Exception("The signed-in account does not match the demo account");
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: email,
+      password: password,
+    );
+
+    await user.linkWithCredential(credential);
   }
 }
