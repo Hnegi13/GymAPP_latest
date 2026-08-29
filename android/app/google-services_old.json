@@ -22,14 +22,6 @@
           }
         },
         {
-          "client_id": "967891616771-u4b7al7es67cnvo0o6l81sthliup6fft.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.himanshu.gymapp.gym_app",
-            "certificate_hash": "2bbfc16e6be2de8a8525ea93426f867b4e0d005d"
-          }
-        },
-        {
           "client_id": "967891616771-sr2c22rls5eo507eq3j7q7mnjek2lbl4.apps.googleusercontent.com",
           "client_type": 3
         }
